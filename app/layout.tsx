@@ -2,7 +2,7 @@ import "./globals.css";
 import Providers from "./providers";
 
 export const metadata = {
-  title: "LinkPro",
+  title: "DivulgaLinks",
   description: "Plataforma de links, automação e divulgação",
 };
 
