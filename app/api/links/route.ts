@@ -7,13 +7,18 @@ export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
 
+    // 🔐 Verifica login
     if (!session?.user?.email) {
-      return Response.json({ error: "Não autorizado." }, { status: 401 });
+      return Response.json(
+        { error: "Não autorizado." },
+        { status: 401 }
+      );
     }
 
     const body = await req.json();
     const { title, url } = body;
 
+    // 🔎 Validação
     if (!title || !url) {
       return Response.json(
         { error: "Título e URL são obrigatórios." },
@@ -21,10 +26,12 @@ export async function POST(req: Request) {
       );
     }
 
+    // 👤 Busca usuário
     let user = await prisma.user.findUnique({
       where: { email: session.user.email },
     });
 
+    // 🧱 Cria usuário se não existir
     if (!user) {
       user = await prisma.user.create({
         data: {
@@ -35,10 +42,12 @@ export async function POST(req: Request) {
       });
     }
 
+    // 📊 Conta links
     const totalLinks = await prisma.link.count({
       where: { userId: user.id },
     });
 
+    // 🚫 Limite FREE
     if (user.plan === "FREE" && totalLinks >= 5) {
       return Response.json(
         { error: "Plano FREE atingiu limite. Atualize para PRO 🚀" },
@@ -46,17 +55,35 @@ export async function POST(req: Request) {
       );
     }
 
+    // 🤖 TRANSFORMA LINK SHOPEE EM AFILIADO
+    let finalUrl = url;
+
+    if (url.includes("shopee")) {
+      // ⚠️ substitua pelo seu ID real depois
+      const affiliateId = "SEU_ID_AFILIADO";
+
+      // evita duplicar parâmetro
+      if (!url.includes("af_id=")) {
+        finalUrl = url.includes("?")
+          ? `${url}&af_id=${affiliateId}`
+          : `${url}?af_id=${affiliateId}`;
+      }
+    }
+
+    // 🔗 Cria link
     const link = await prisma.link.create({
       data: {
         title,
-        url,
+        url: finalUrl,
         shortCode: nanoid(6),
         userId: user.id,
       },
     });
 
     return Response.json(link);
-  } catch {
+  } catch (error) {
+    console.error(error);
+
     return Response.json(
       { error: "Erro ao criar link." },
       { status: 500 }
