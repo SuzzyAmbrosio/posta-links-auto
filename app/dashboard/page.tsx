@@ -21,11 +21,17 @@ export default function DashboardPage() {
   const [url, setUrl] = useState("");
   const [links, setLinks] = useState<LinkItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [importando, setImportando] = useState(false);
   const [message, setMessage] = useState("");
+
+  const planoAtual =
+    session?.user?.email === "admin@saaslinks.com" ? "PRO" : "FREE";
 
   async function carregarLinks() {
     try {
-      const res = await fetch("/api/links/list");
+      const res = await fetch("/api/links/list", {
+        cache: "no-store",
+      });
       const data = await res.json();
       setLinks(Array.isArray(data) ? data : []);
     } catch {
@@ -100,6 +106,31 @@ export default function DashboardPage() {
     }
   }
 
+  async function importarProdutosShopee() {
+    setImportando(true);
+    setMessage("");
+
+    try {
+      const res = await fetch("/api/shopee/import", {
+        method: "POST",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setMessage(data.error || "Erro ao importar produtos.");
+        return;
+      }
+
+      setMessage(data.message || "Produtos importados com sucesso.");
+      await carregarLinks();
+    } catch {
+      setMessage("Erro ao importar produtos.");
+    } finally {
+      setImportando(false);
+    }
+  }
+
   function copiarLink(shortCode: string) {
     const linkCompleto = `${window.location.origin}/${shortCode}`;
     navigator.clipboard.writeText(linkCompleto);
@@ -157,6 +188,12 @@ export default function DashboardPage() {
             >
               Início
             </a>
+            <a
+              className="block rounded-lg px-4 py-3 hover:bg-slate-800"
+              href="/upgrade"
+            >
+              Upgrade
+            </a>
           </nav>
 
           <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-950 p-4">
@@ -168,18 +205,18 @@ export default function DashboardPage() {
         </aside>
 
         <section className="p-6 md:p-8">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
               <h1 className="text-3xl font-bold tracking-tight">
                 🚀 Painel de Controle
               </h1>
               <p className="mt-2 text-slate-400">
-                Crie links encurtados e acompanhe os cliques em tempo real.
+                Crie links encurtados, acompanhe cliques e importe produtos.
               </p>
             </div>
 
-            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-300">
-              Plano atual: {session.user?.email === "admin@saaslinks.com" ? "PRO" : "FREE"}
+            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-300">
+              <div>Plano atual: {planoAtual}</div>
               <a
                 href="/upgrade"
                 className="mt-3 inline-block rounded-lg bg-purple-500 px-4 py-2 text-sm font-semibold text-white"
@@ -205,9 +242,19 @@ export default function DashboardPage() {
             <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-lg">
               <div className="text-sm text-slate-400">Links disponíveis</div>
               <div className="mt-2 text-3xl font-bold">
-                {Math.max(0, 5 - links.length)}
+                {planoAtual === "PRO" ? "∞" : Math.max(0, 5 - links.length)}
               </div>
             </div>
+          </div>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <button
+              onClick={importarProdutosShopee}
+              disabled={importando}
+              className="rounded-xl bg-purple-500 px-5 py-3 font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
+            >
+              {importando ? "Importando..." : "🤖 Importar produtos da Shopee"}
+            </button>
           </div>
 
           <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-lg">
@@ -294,7 +341,7 @@ export default function DashboardPage() {
                           </div>
                         </div>
 
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                           <button
                             onClick={() => copiarLink(link.shortCode)}
                             className="rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800"
