@@ -22,6 +22,7 @@ export default function DashboardPage() {
   const [links, setLinks] = useState<LinkItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [importando, setImportando] = useState(false);
+  const [enviandoId, setEnviandoId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
 
   const planoAtual =
@@ -137,6 +138,38 @@ export default function DashboardPage() {
     setMessage("Link copiado com sucesso.");
   }
 
+  async function enviarTelegram(link: LinkItem) {
+    setEnviandoId(link.id);
+    setMessage("");
+
+    try {
+      const mensagem = `🔥 ${link.title}
+
+👉 ${window.location.origin}/${link.shortCode}`;
+
+      const res = await fetch("/api/telegram/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: mensagem }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setMessage(data.error || "Erro ao enviar para o Telegram.");
+        return;
+      }
+
+      setMessage("Enviado para o Telegram com sucesso 🚀");
+    } catch {
+      setMessage("Erro ao enviar para o Telegram.");
+    } finally {
+      setEnviandoId(null);
+    }
+  }
+
   if (status === "loading") {
     return (
       <main className="min-h-screen bg-slate-950 p-10 text-white">
@@ -211,7 +244,7 @@ export default function DashboardPage() {
                 🚀 Painel de Controle
               </h1>
               <p className="mt-2 text-slate-400">
-                Crie links encurtados, acompanhe cliques e importe produtos.
+                Crie links encurtados, acompanhe cliques e envie para o Telegram.
               </p>
             </div>
 
@@ -347,6 +380,16 @@ export default function DashboardPage() {
                             className="rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800"
                           >
                             Copiar link
+                          </button>
+
+                          <button
+                            onClick={() => enviarTelegram(link)}
+                            disabled={enviandoId === link.id}
+                            className="rounded-lg border border-green-700 px-3 py-2 text-sm text-green-300 hover:bg-green-950 disabled:opacity-60"
+                          >
+                            {enviandoId === link.id
+                              ? "Enviando..."
+                              : "Enviar Telegram"}
                           </button>
 
                           <button
