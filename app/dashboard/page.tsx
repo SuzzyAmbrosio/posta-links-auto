@@ -22,7 +22,7 @@ export default function DashboardPage() {
     try {
       const res = await fetch("/api/links/list");
       const data = await res.json();
-      setLinks(data);
+      setLinks(Array.isArray(data) ? data : []);
     } catch {
       setMessage("Erro ao carregar links.");
     }
@@ -50,7 +50,6 @@ export default function DashboardPage() {
 
       if (!res.ok) {
         setMessage(data.error || "Erro ao criar link.");
-        setLoading(false);
         return;
       }
 
