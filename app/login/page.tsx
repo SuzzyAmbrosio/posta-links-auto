@@ -22,8 +22,10 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen px-6 py-10 text-white">
+    <main className="min-h-screen px-6 py-10 text-white bg-slate-950">
       <div className="mx-auto grid min-h-[80vh] max-w-6xl items-center gap-10 lg:grid-cols-2">
+
+        {/* LEFT */}
         <div>
           <div className="inline-flex rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-2 text-sm text-blue-300">
             Entrar na plataforma
@@ -39,6 +41,7 @@ export default function LoginPage() {
           </p>
         </div>
 
+        {/* RIGHT (FORM) */}
         <div className="rounded-[28px] border border-slate-800 bg-slate-950/85 p-6 shadow-2xl shadow-black/30">
           <div className="rounded-[24px] border border-slate-800 bg-slate-900 p-6">
             <h2 className="text-2xl font-bold">Login</h2>
@@ -47,6 +50,8 @@ export default function LoginPage() {
             </p>
 
             <form onSubmit={login} className="mt-6 space-y-4">
+
+              {/* EMAIL */}
               <div>
                 <label className="mb-2 block text-sm text-slate-300">Email</label>
                 <input
@@ -54,10 +59,11 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="seuemail@email.com"
-                  className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 outline-none transition focus:border-blue-500"
+                  className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-blue-500"
                 />
               </div>
 
+              {/* SENHA */}
               <div>
                 <label className="mb-2 block text-sm text-slate-300">Senha</label>
                 <input
@@ -65,5 +71,24 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 outline-none transition focus:border-blue-500"
-                  />
+                  className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-blue-500"
+                />
+              </div>
+
+              {/* BOTÃO */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-2xl bg-blue-600 py-3 font-bold text-white transition hover:bg-blue-700 disabled:opacity-60"
+              >
+                {loading ? "Entrando..." : "Entrar"}
+              </button>
+
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  );
+}
