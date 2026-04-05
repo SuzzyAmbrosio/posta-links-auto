@@ -60,7 +60,7 @@ export async function POST(req: Request) {
 
     if (url.includes("shopee")) {
       // ⚠️ substitua pelo seu ID real depois
-      const affiliateId = "SEU_ID_AFILIADO";
+      const affiliateId = "18394650198";
 
       // evita duplicar parâmetro
       if (!url.includes("af_id=")) {
