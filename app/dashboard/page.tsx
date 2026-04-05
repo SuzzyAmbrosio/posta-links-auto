@@ -179,7 +179,7 @@ export default function DashboardPage() {
             </div>
 
             <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-300">
-              Plano atual: FREE
+              Plano atual: {session.user?.email === "admin@saaslinks.com" ? "PRO" : "FREE"}
             </div>
           </div>
 
