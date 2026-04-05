@@ -64,6 +64,35 @@ export default function DashboardPage() {
     }
   }
 
+  async function excluirLink(id: string) {
+    const confirmou = window.confirm("Deseja excluir este link?");
+    if (!confirmou) return;
+
+    setMessage("");
+
+    try {
+      const res = await fetch("/api/links/delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setMessage(data.error || "Erro ao excluir link.");
+        return;
+      }
+
+      setMessage("Link excluído com sucesso.");
+      await carregarLinks();
+    } catch {
+      setMessage("Erro ao excluir link.");
+    }
+  }
+
   function copiarLink(shortCode: string) {
     const linkCompleto = `${window.location.origin}/${shortCode}`;
     navigator.clipboard.writeText(linkCompleto);
@@ -224,6 +253,13 @@ export default function DashboardPage() {
                             className="rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800"
                           >
                             Copiar link
+                          </button>
+
+                          <button
+                            onClick={() => excluirLink(link.id)}
+                            className="rounded-lg border border-red-700 px-3 py-2 text-sm text-red-300 hover:bg-red-950"
+                          >
+                            Excluir
                           </button>
                         </div>
                       </div>
