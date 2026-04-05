@@ -41,9 +41,9 @@ export default function DashboardPage() {
       const res = await fetch("/api/links", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title, url })
+        body: JSON.stringify({ title, url }),
       });
 
       const data = await res.json();
