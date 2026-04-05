@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
 type LinkItem = {
   id: string;
@@ -12,6 +13,8 @@ type LinkItem = {
 };
 
 export default function DashboardPage() {
+  const { data: session, status } = useSession();
+
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [links, setLinks] = useState<LinkItem[]>([]);
@@ -29,8 +32,10 @@ export default function DashboardPage() {
   }
 
   useEffect(() => {
-    carregarLinks();
-  }, []);
+    if (session) {
+      carregarLinks();
+    }
+  }, [session]);
 
   async function criarLink(e: React.FormEvent) {
     e.preventDefault();
@@ -99,6 +104,33 @@ export default function DashboardPage() {
     setMessage("Link copiado com sucesso.");
   }
 
+  if (status === "loading") {
+    return (
+      <main className="min-h-screen bg-slate-950 p-10 text-white">
+        <h1 className="text-2xl font-bold">Carregando...</h1>
+      </main>
+    );
+  }
+
+  if (!session) {
+    return (
+      <main className="min-h-screen bg-slate-950 p-10 text-white">
+        <div className="mx-auto max-w-xl rounded-2xl border border-slate-800 bg-slate-900 p-8">
+          <h1 className="text-2xl font-bold">Você precisa fazer login</h1>
+          <p className="mt-3 text-slate-400">
+            Entre na sua conta para acessar o dashboard e gerenciar seus links.
+          </p>
+          <a
+            href="/login"
+            className="mt-6 inline-block rounded-xl bg-emerald-500 px-5 py-3 font-semibold text-slate-950"
+          >
+            Ir para login
+          </a>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       <div className="mx-auto grid max-w-7xl grid-cols-1 md:grid-cols-[260px_1fr]">
@@ -124,6 +156,13 @@ export default function DashboardPage() {
               Início
             </a>
           </nav>
+
+          <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-950 p-4">
+            <div className="text-sm text-slate-400">Usuária logada</div>
+            <div className="mt-2 break-all text-sm font-medium text-white">
+              {session.user?.email}
+            </div>
+          </div>
         </aside>
 
         <section className="p-6 md:p-8">
