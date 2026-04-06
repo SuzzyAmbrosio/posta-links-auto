@@ -58,6 +58,9 @@ model Group {
   postPriceLabel    String   @default("")
   postCta           String   @default("")
 
+  lastPostedAt      DateTime?
+  isActive          Boolean  @default(true)
+
   userId            String
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
