@@ -23,7 +23,7 @@ export async function GET() {
     }
 
     return Response.json({
-      botToken: user.telegramBotToken ?? "",
+      botToken: user.settings?.telegramBotToken ?? "",
       chatId: user.telegramChatId ?? "",
       defaultMessage: user.telegramDefaultMessage ?? "",
       signature: user.telegramSignature ?? "",
