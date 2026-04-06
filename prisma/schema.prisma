@@ -8,35 +8,19 @@ datasource db {
 }
 
 model User {
-  id                        String        @id @default(cuid())
-  name                      String?
-  email                     String        @unique
-  password                  String?
-  plan                      String        @default("FREE")
+  id        String        @id @default(cuid())
+  name      String?
+  email     String        @unique
+  password  String?
+  plan      String        @default("FREE")
 
-  telegramBotToken          String        @default("")
-  telegramChatId            String        @default("")
-  telegramDefaultMessage    String        @default("")
-  telegramSignature         String        @default("")
-  telegramParseMode         String        @default("HTML")
-  telegramDisablePreview    Boolean       @default(false)
-  telegramPinAfterSend      Boolean       @default(false)
+  links     Link[]
+  groups    Group[]
+  settings  UserSettings?
 
-  whatsappGroupName         String        @default("")
-  whatsappInviteLink        String        @default("")
-  whatsappDefaultMessage    String        @default("")
-  whatsappFooterCta         String        @default("")
-  whatsappIncludeInviteLink Boolean       @default(true)
-  whatsappShortenText       Boolean       @default(false)
-
-  links                     Link[]
-  groups                    Group[]
-  settings                  UserSettings?
-
-  createdAt                 DateTime      @default(now())
-  updatedAt                 DateTime      @default(now()) @updatedAt
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @default(now()) @updatedAt
 }
-
 
 model Link {
   id        String   @id @default(cuid())
@@ -80,6 +64,29 @@ model Group {
   links             Link[]
 
   createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  updatedAt         DateTime @default(now()) @updatedAt
 }
 
+model UserSettings {
+  id                        String   @id @default(cuid())
+  userId                    String   @unique
+  user                      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  telegramBotToken          String   @default("")
+  telegramChatId            String   @default("")
+  telegramDefaultMessage    String   @default("")
+  telegramSignature         String   @default("")
+  telegramParseMode         String   @default("HTML")
+  telegramDisablePreview    Boolean  @default(false)
+  telegramPinAfterSend      Boolean  @default(false)
+
+  whatsappGroupName         String   @default("")
+  whatsappInviteLink        String   @default("")
+  whatsappDefaultMessage    String   @default("")
+  whatsappFooterCta         String   @default("")
+  whatsappIncludeInviteLink Boolean  @default(true)
+  whatsappShortenText       Boolean  @default(false)
+
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @default(now()) @updatedAt
+}
