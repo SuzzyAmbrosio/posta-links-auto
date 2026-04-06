@@ -5,12 +5,11 @@ import { authOptions } from "@/lib/auth";
 async function getCurrentUser() {
   const session = await getServerSession(authOptions);
 
-  if (!session?.user?.email) {
-    return null;
-  }
+  if (!session?.user?.email) return null;
 
   return prisma.user.findUnique({
     where: { email: session.user.email },
+    include: { settings: true },
   });
 }
 
@@ -24,44 +23,38 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const message = String(body?.message ?? "").trim();
-    const groupId = body?.groupId ? String(body.groupId) : null;
+    const groupId = body?.groupId ?? null;
 
     if (!message) {
-      return Response.json({ error: "Mensagem não informada." }, { status: 400 });
+      return Response.json({ error: "Mensagem vazia." }, { status: 400 });
     }
 
-    let botToken = String(user.telegramBotToken ?? "");
-    let chatId = String(user.telegramChatId ?? "");
-    let parseMode = String(user.telegramParseMode ?? "HTML");
-    let disablePreview = Boolean(user.telegramDisablePreview);
+    const s = user.settings;
 
+    let botToken = s?.telegramBotToken ?? "";
+    let chatId = s?.telegramChatId ?? "";
+    let parseMode = s?.telegramParseMode ?? "HTML";
+    let disablePreview = Boolean(s?.telegramDisablePreview);
+
+    // sobrescrever pelo grupo (se existir)
     if (groupId) {
       const group = await prisma.group.findFirst({
-        where: {
-          id: groupId,
-          userId: user.id,
-        },
+        where: { id: groupId, userId: user.id },
       });
 
-      if (!group) {
-        return Response.json({ error: "Grupo não encontrado." }, { status: 404 });
-      }
-
-      if (group.telegramToken?.trim()) {
-        botToken = group.telegramToken.trim();
-      }
-
-      if (group.telegramChatId?.trim()) {
-        chatId = group.telegramChatId.trim();
+      if (group) {
+        if (group.telegramToken?.trim()) {
+          botToken = group.telegramToken;
+        }
+        if (group.telegramChatId?.trim()) {
+          chatId = group.telegramChatId;
+        }
       }
     }
 
     if (!botToken || !chatId) {
       return Response.json(
-        {
-          error:
-            "Configure o Bot Token e o Chat ID no Telegram antes de enviar.",
-        },
+        { error: "Configure o Telegram primeiro." },
         { status: 400 }
       );
     }
@@ -70,9 +63,7 @@ export async function POST(req: Request) {
       `https://api.telegram.org/bot${botToken}/sendMessage`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           chat_id: chatId,
           text: message,
@@ -82,26 +73,17 @@ export async function POST(req: Request) {
       }
     );
 
-    const telegramData = await telegramRes.json();
+    const data = await telegramRes.json();
 
-    if (!telegramRes.ok || !telegramData?.ok) {
+    if (!telegramRes.ok || !data?.ok) {
       return Response.json(
-        {
-          error:
-            telegramData?.description || "Erro ao enviar mensagem para o Telegram.",
-        },
+        { error: data?.description || "Erro Telegram" },
         { status: 400 }
       );
     }
 
-    return Response.json({
-      ok: true,
-      telegramMessageId: telegramData?.result?.message_id ?? null,
-    });
+    return Response.json({ ok: true });
   } catch {
-    return Response.json(
-      { error: "Erro interno ao enviar para o Telegram." },
-      { status: 500 }
-    );
+    return Response.json({ error: "Erro interno." }, { status: 500 });
   }
 }
