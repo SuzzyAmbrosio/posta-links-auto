@@ -72,7 +72,7 @@ export async function POST(req: Request) {
     let internalCode = makeInternalCode();
 
     for (let i = 0; i < 5; i++) {
-      const exists = await prisma.group.findUnique({
+      const exists = await prisma.group.findFirst({
         where: { internalCode },
       });
 
