@@ -86,7 +86,6 @@ export async function POST(req: Request) {
         internalCode,
         userId: user.id,
         postAuto: false,
-        products: 0,
         intervalMinutes: 30,
         randomMode: false,
         whatsappMessage: "",
