@@ -20,7 +20,6 @@ async function getCurrentUser() {
 function buildTelegramMessage(params: {
   title: string;
   shortUrl: string;
-  groupName?: string;
   customTitle?: string;
   priceLabel?: string;
   cta?: string;
@@ -76,12 +75,26 @@ export async function POST(_req: Request, context: RouteContext) {
       return Response.json({ error: "Grupo não encontrado." }, { status: 404 });
     }
 
-    let botToken = group.telegramToken?.trim() || user.settings?.telegramBotToken?.trim() || "";
-    let chatId = group.telegramChatId?.trim() || user.settings?.telegramChatId?.trim() || "";
+    const botToken =
+      group.telegramToken?.trim() || user.settings?.telegramBotToken?.trim() || "";
+
+    const chatId =
+      group.telegramChatId?.trim() || user.settings?.telegramChatId?.trim() || "";
+
     const parseMode = user.settings?.telegramParseMode?.trim() || "HTML";
     const disablePreview = Boolean(user.settings?.telegramDisablePreview);
 
     if (!botToken || !chatId) {
+      await prisma.postLog.create({
+        data: {
+          userId: user.id,
+          status: "error",
+          detail: "Configure o Telegram no grupo ou nas configurações gerais.",
+          groupId: group.id,
+          groupName: group.name,
+        },
+      });
+
       return Response.json(
         { error: "Configure o Telegram no grupo ou nas configurações gerais." },
         { status: 400 }
@@ -112,6 +125,16 @@ export async function POST(_req: Request, context: RouteContext) {
     }
 
     if (!links.length) {
+      await prisma.postLog.create({
+        data: {
+          userId: user.id,
+          status: "error",
+          detail: "Nenhum link disponível para postar.",
+          groupId: group.id,
+          groupName: group.name,
+        },
+      });
+
       return Response.json(
         { error: "Nenhum link disponível para postar." },
         { status: 400 }
@@ -127,13 +150,12 @@ export async function POST(_req: Request, context: RouteContext) {
 
     const shortUrl =
       process.env.NEXTAUTH_URL
-        ? `${process.env.NEXTAUTH_URL}/${selectedLink.shortCode}`
+        ? `${process.env.NEXTAUTH_URL.replace(/\/$/, "")}/${selectedLink.shortCode}`
         : selectedLink.url;
 
     const message = buildTelegramMessage({
       title: selectedLink.title,
       shortUrl,
-      groupName: group.name,
       customTitle: group.postTitle,
       priceLabel: group.postPriceLabel,
       cta: group.postCta,
@@ -160,13 +182,44 @@ export async function POST(_req: Request, context: RouteContext) {
     const telegramData = await telegramRes.json();
 
     if (!telegramRes.ok || !telegramData?.ok) {
-      return Response.json(
-        {
-          error: telegramData?.description || "Erro ao enviar mensagem para o Telegram.",
+      const detail =
+        telegramData?.description || "Erro ao enviar mensagem para o Telegram.";
+
+      await prisma.postLog.create({
+        data: {
+          userId: user.id,
+          status: "error",
+          detail,
+          groupId: group.id,
+          groupName: group.name,
+          linkId: selectedLink.id,
+          linkTitle: selectedLink.title,
+          telegramChatId: chatId,
         },
-        { status: 400 }
-      );
+      });
+
+      return Response.json({ error: detail }, { status: 400 });
     }
+
+    await prisma.group.update({
+      where: { id: group.id },
+      data: {
+        lastPostedAt: new Date(),
+      },
+    });
+
+    await prisma.postLog.create({
+      data: {
+        userId: user.id,
+        status: "success",
+        detail: `Post manual enviado: ${selectedLink.title}`,
+        groupId: group.id,
+        groupName: group.name,
+        linkId: selectedLink.id,
+        linkTitle: selectedLink.title,
+        telegramChatId: chatId,
+      },
+    });
 
     return Response.json({
       ok: true,
