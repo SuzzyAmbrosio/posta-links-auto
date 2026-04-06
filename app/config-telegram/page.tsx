@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
+  AlertCircle,
   Bell,
   Bot,
+  CheckCircle2,
   ExternalLink,
   LayoutDashboard,
   Megaphone,
@@ -16,8 +18,6 @@ import {
   Tag,
   User,
   WalletCards,
-  CheckCircle2,
-  AlertCircle,
 } from "lucide-react";
 
 function cn(...classes: Array<string | false | null | undefined>) {
@@ -57,6 +57,7 @@ function Sidebar() {
         <nav className="space-y-1">
           {items.map((item) => {
             const Icon = item.icon;
+
             return (
               <Link
                 key={item.label}
@@ -138,14 +139,17 @@ function StarterBanner() {
 function CardSection({
   title,
   children,
+  extra,
 }: {
   title: string;
   children: React.ReactNode;
+  extra?: React.ReactNode;
 }) {
   return (
     <div className="rounded-xl border border-slate-200 bg-white">
-      <div className="border-b border-slate-200 px-4 py-3">
+      <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
         <h3 className="text-[14px] font-bold text-slate-700">{title}</h3>
+        {extra}
       </div>
       <div className="p-4">{children}</div>
     </div>
@@ -158,7 +162,12 @@ export default function ConfigTelegramPage() {
   const [defaultMessage, setDefaultMessage] = useState(
     "🔥 Oferta imperdível do dia!\n\n✅ Produto selecionado\n🚚 Envio rápido\n⭐ Aproveite enquanto durar\n\n🛒 Confira agora no link abaixo:"
   );
-  const [signature, setSignature] = useState("Entre no canal para receber mais ofertas todos os dias.");
+  const [signature, setSignature] = useState(
+    "Entre no canal para receber mais ofertas todos os dias."
+  );
+  const [parseMode, setParseMode] = useState("HTML");
+  const [disablePreview, setDisablePreview] = useState(false);
+  const [pinAfterSend, setPinAfterSend] = useState(false);
   const [status, setStatus] = useState<"idle" | "saved" | "tested">("idle");
 
   function handleSave() {
@@ -168,6 +177,12 @@ export default function ConfigTelegramPage() {
   function handleTest() {
     setStatus("tested");
   }
+
+  const previewText = useMemo(() => {
+    return [defaultMessage, "https://seudominio.com/oferta-exemplo", signature]
+      .filter(Boolean)
+      .join("\n\n");
+  }, [defaultMessage, signature]);
 
   return (
     <div className="min-h-screen bg-[#f5f6fa]">
@@ -182,7 +197,7 @@ export default function ConfigTelegramPage() {
             <div>
               <h1 className="text-[24px] font-bold text-slate-800">Configurações do Telegram</h1>
               <p className="mt-1 text-[13px] text-slate-500">
-                Configure seu bot e a estrutura das mensagens enviadas.
+                Configure o bot, o destino e o formato padrão das mensagens.
               </p>
             </div>
 
@@ -262,16 +277,58 @@ export default function ConfigTelegramPage() {
                 </div>
               </CardSection>
 
-              <CardSection title="Assinatura / CTA">
+              <CardSection title="Rodapé / assinatura">
                 <div>
                   <label className="mb-1 block text-[12px] font-semibold text-slate-600">
-                    Rodapé da mensagem
+                    CTA final
                   </label>
                   <textarea
                     value={signature}
                     onChange={(e) => setSignature(e.target.value)}
                     className="min-h-[110px] w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-400"
                   />
+                </div>
+              </CardSection>
+
+              <CardSection title="Opções do envio">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-[12px] font-semibold text-slate-600">
+                      Parse mode
+                    </label>
+                    <select
+                      value={parseMode}
+                      onChange={(e) => setParseMode(e.target.value)}
+                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-400"
+                    >
+                      <option value="HTML">HTML</option>
+                      <option value="Markdown">Markdown</option>
+                      <option value="MarkdownV2">MarkdownV2</option>
+                      <option value="Plain">Sem formatação</option>
+                    </select>
+                  </div>
+
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-[13px] text-slate-600">
+                    Escolha o formato que será usado quando a API real do Telegram for conectada.
+                  </div>
+
+                  <label className="flex items-center justify-between rounded-lg border border-slate-200 p-3 text-[13px] font-medium text-slate-700">
+                    <span>Desativar preview do link</span>
+                    <input
+                      type="checkbox"
+                      checked={disablePreview}
+                      onChange={() => setDisablePreview(!disablePreview)}
+                    />
+                  </label>
+
+                  <label className="flex items-center justify-between rounded-lg border border-slate-200 p-3 text-[13px] font-medium text-slate-700">
+                    <span>Fixar mensagem após envio</span>
+                    <input
+                      type="checkbox"
+                      checked={pinAfterSend}
+                      onChange={() => setPinAfterSend(!pinAfterSend)}
+                    />
+                  </label>
                 </div>
               </CardSection>
             </div>
@@ -290,13 +347,35 @@ export default function ConfigTelegramPage() {
                   </div>
 
                   <div className="rounded-2xl bg-white p-4 text-sm leading-6 text-slate-700 shadow-sm">
-                    <div className="whitespace-pre-line">{defaultMessage}</div>
+                    <div className="whitespace-pre-line">{previewText}</div>
+                  </div>
+                </div>
+              </CardSection>
 
-                    <div className="mt-4 rounded-lg bg-blue-50 px-3 py-2 font-semibold text-blue-700">
-                      https://seudominio.com/oferta-exemplo
-                    </div>
+              <CardSection title="Resumo da configuração">
+                <div className="space-y-3 text-[13px] text-slate-600">
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <strong className="text-slate-700">Bot token:</strong>{" "}
+                    {botToken ? "Preenchido" : "Não informado"}
+                  </div>
 
-                    <div className="mt-4 whitespace-pre-line text-slate-600">{signature}</div>
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <strong className="text-slate-700">Chat ID:</strong>{" "}
+                    {chatId || "Não informado"}
+                  </div>
+
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <strong className="text-slate-700">Parse mode:</strong> {parseMode}
+                  </div>
+
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <strong className="text-slate-700">Preview do link:</strong>{" "}
+                    {disablePreview ? "Desativado" : "Ativado"}
+                  </div>
+
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <strong className="text-slate-700">Fixar após envio:</strong>{" "}
+                    {pinAfterSend ? "Sim" : "Não"}
                   </div>
                 </div>
               </CardSection>
@@ -304,13 +383,13 @@ export default function ConfigTelegramPage() {
               <CardSection title="Dicas rápidas">
                 <div className="space-y-3 text-[13px] text-slate-600">
                   <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-                    Use um bot exclusivo para seu canal de promoções.
+                    O Chat ID de canais costuma começar com <strong>-100</strong>.
                   </div>
                   <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-                    O Chat ID geralmente começa com <strong>-100</strong> em canais.
+                    Use mensagens curtas, objetivas e com CTA forte para aumentar cliques.
                   </div>
                   <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-                    Mantenha a mensagem curta, clara e com CTA forte para aumentar cliques.
+                    Quando conectar a API real, essa tela pode reaproveitar sua rota de teste/envio.
                   </div>
                 </div>
               </CardSection>
