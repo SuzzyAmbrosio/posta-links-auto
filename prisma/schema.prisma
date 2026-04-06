@@ -8,15 +8,17 @@ datasource db {
 }
 
 model User {
-  id        String  @id @default(cuid())
-  email     String  @unique
-  password  String
-  plan      String  @default("FREE")
+  id        String   @id @default(cuid())
+  name      String?
+  email     String   @unique
+  password  String?
   createdAt DateTime @default(now())
 
-  links  Link[]
-  groups Group[]
+  links     Link[]
+  groups    Group[]
+  settings  UserSettings?
 }
+
 
 model Link {
   id        String   @id @default(cuid())
@@ -61,4 +63,23 @@ model Group {
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+}
+
+model UserSettings {
+  id                       String   @id @default(cuid())
+  userId                   String   @unique
+  user                     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  telegramBotToken         String   @default("")
+  telegramChatId           String   @default("")
+  telegramDefaultMessage   String   @default("")
+  telegramSignature        String   @default("")
+
+  whatsappGroupName        String   @default("")
+  whatsappInviteLink       String   @default("")
+  whatsappDefaultMessage   String   @default("")
+  whatsappFooterCta        String   @default("")
+
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
 }
