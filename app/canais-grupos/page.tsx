@@ -167,6 +167,31 @@ function GroupCard({
   item: GroupItem;
   onDelete: (id: string) => void;
 }) {
+  const [posting, setPosting] = useState(false);
+
+  async function handlePostNow() {
+    try {
+      setPosting(true);
+
+      const res = await fetch(`/api/groups/${item.id}/post-now`, {
+        method: "POST",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data?.error || "Erro ao postar no Telegram.");
+        return;
+      }
+
+      alert("Post enviado com sucesso no Telegram.");
+    } catch {
+      alert("Erro ao postar no Telegram.");
+    } finally {
+      setPosting(false);
+    }
+  }
+
   return (
     <div className="w-full max-w-[320px] rounded-xl border border-slate-300 bg-white p-4 shadow-sm">
       <div className="mb-4 flex items-start gap-3">
@@ -184,10 +209,7 @@ function GroupCard({
 
       <div className="mb-4 space-y-2 border-t border-slate-200 pt-4 text-[12px] text-slate-600">
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Zap className="h-4 w-4 text-sky-500" />
-            <span>Post Auto:</span>
-          </div>
+          <span>Post Auto:</span>
           <span
             className={cn(
               "rounded-full px-2 py-0.5 text-[10px] font-bold",
@@ -199,26 +221,12 @@ function GroupCard({
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Boxes className="h-4 w-4 text-cyan-500" />
-            <span>Produtos:</span>
-          </div>
-          <span className="font-semibold text-slate-700">{item.products}</span>
-        </div>
-
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Clock3 className="h-4 w-4 text-amber-500" />
-            <span>Intervalo:</span>
-          </div>
+          <span>Intervalo:</span>
           <span className="font-semibold text-slate-700">{item.intervalLabel}</span>
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <Settings className="h-4 w-4 text-violet-500" />
-            <span>Aleatório:</span>
-          </div>
+          <span>Aleatório:</span>
           <span
             className={cn(
               "rounded-full px-2 py-0.5 text-[10px] font-bold",
@@ -230,12 +238,21 @@ function GroupCard({
         </div>
       </div>
 
+      <div className="mb-2">
+        <button
+          onClick={handlePostNow}
+          disabled={posting}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-[12px] font-bold text-white hover:bg-emerald-700 disabled:opacity-60"
+        >
+          {posting ? "Postando..." : "Postar agora"}
+        </button>
+      </div>
+
       <div className="flex gap-2">
         <Link
           href={`/canais-grupos/${item.id}`}
           className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-[12px] font-bold text-white hover:bg-blue-700"
         >
-          <Pencil className="h-4 w-4" />
           Editar
         </Link>
 
@@ -243,7 +260,6 @@ function GroupCard({
           onClick={() => onDelete(item.id)}
           className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-red-300 bg-white px-3 py-2 text-[12px] font-bold text-red-600 hover:bg-red-50"
         >
-          <Trash2 className="h-4 w-4" />
           Excluir
         </button>
       </div>
