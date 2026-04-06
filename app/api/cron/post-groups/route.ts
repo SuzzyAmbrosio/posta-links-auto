@@ -84,6 +84,17 @@ export async function GET() {
               status: "skipped",
               detail: `Intervalo ainda não atingido (${minutes}/${group.intervalMinutes} min).`,
             });
+
+            await prisma.postLog.create({
+              data: {
+                userId: group.userId,
+                status: "skipped",
+                detail: `Intervalo ainda não atingido (${minutes}/${group.intervalMinutes} min).`,
+                groupId: group.id,
+                groupName: group.name,
+              },
+            });
+
             continue;
           }
         }
@@ -110,6 +121,17 @@ export async function GET() {
             status: "error",
             detail: "Telegram não configurado.",
           });
+
+          await prisma.postLog.create({
+            data: {
+              userId: group.userId,
+              status: "error",
+              detail: "Telegram não configurado.",
+              groupId: group.id,
+              groupName: group.name,
+            },
+          });
+
           continue;
         }
 
@@ -134,6 +156,17 @@ export async function GET() {
             status: "error",
             detail: "Nenhum link disponível.",
           });
+
+          await prisma.postLog.create({
+            data: {
+              userId: group.userId,
+              status: "error",
+              detail: "Nenhum link disponível.",
+              groupId: group.id,
+              groupName: group.name,
+            },
+          });
+
           continue;
         }
 
@@ -182,12 +215,28 @@ export async function GET() {
         const telegramData = await telegramRes.json();
 
         if (!telegramRes.ok || !telegramData?.ok) {
+          const detail = telegramData?.description || "Erro Telegram.";
+
           results.push({
             groupId: group.id,
             groupName: group.name,
             status: "error",
-            detail: telegramData?.description || "Erro Telegram.",
+            detail,
           });
+
+          await prisma.postLog.create({
+            data: {
+              userId: group.userId,
+              status: "error",
+              detail,
+              groupId: group.id,
+              groupName: group.name,
+              linkId: selectedLink.id,
+              linkTitle: selectedLink.title,
+              telegramChatId: chatId,
+            },
+          });
+
           continue;
         }
 
@@ -195,6 +244,19 @@ export async function GET() {
           where: { id: group.id },
           data: {
             lastPostedAt: now,
+          },
+        });
+
+        await prisma.postLog.create({
+          data: {
+            userId: group.userId,
+            status: "success",
+            detail: `Link enviado: ${selectedLink.title}`,
+            groupId: group.id,
+            groupName: group.name,
+            linkId: selectedLink.id,
+            linkTitle: selectedLink.title,
+            telegramChatId: chatId,
           },
         });
 
@@ -210,6 +272,16 @@ export async function GET() {
           groupName: group.name,
           status: "error",
           detail: "Falha ao processar grupo.",
+        });
+
+        await prisma.postLog.create({
+          data: {
+            userId: group.userId,
+            status: "error",
+            detail: "Falha ao processar grupo.",
+            groupId: group.id,
+            groupName: group.name,
+          },
         });
       }
     }
