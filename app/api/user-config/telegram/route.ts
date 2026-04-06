@@ -5,12 +5,11 @@ import { authOptions } from "@/lib/auth";
 async function getCurrentUser() {
   const session = await getServerSession(authOptions);
 
-  if (!session?.user?.email) {
-    return null;
-  }
+  if (!session?.user?.email) return null;
 
   return prisma.user.findUnique({
     where: { email: session.user.email },
+    include: { settings: true },
   });
 }
 
@@ -22,20 +21,19 @@ export async function GET() {
       return Response.json({ error: "Não autenticado." }, { status: 401 });
     }
 
+    const s = user.settings;
+
     return Response.json({
-      botToken: user.settings?.telegramBotToken ?? "",
-      chatId: user.telegramChatId ?? "",
-      defaultMessage: user.telegramDefaultMessage ?? "",
-      signature: user.telegramSignature ?? "",
-      parseMode: user.telegramParseMode ?? "HTML",
-      disablePreview: Boolean(user.telegramDisablePreview),
-      pinAfterSend: Boolean(user.telegramPinAfterSend),
+      botToken: s?.telegramBotToken ?? "",
+      chatId: s?.telegramChatId ?? "",
+      defaultMessage: s?.telegramDefaultMessage ?? "",
+      signature: s?.telegramSignature ?? "",
+      parseMode: s?.telegramParseMode ?? "HTML",
+      disablePreview: Boolean(s?.telegramDisablePreview),
+      pinAfterSend: Boolean(s?.telegramPinAfterSend),
     });
   } catch {
-    return Response.json(
-      { error: "Erro ao buscar configurações do Telegram." },
-      { status: 500 }
-    );
+    return Response.json({ error: "Erro ao buscar config Telegram." }, { status: 500 });
   }
 }
 
@@ -49,9 +47,19 @@ export async function PUT(req: Request) {
 
     const body = await req.json();
 
-    const updated = await prisma.user.update({
-      where: { id: user.id },
-      data: {
+    await prisma.userSettings.upsert({
+      where: { userId: user.id },
+      update: {
+        telegramBotToken: String(body?.botToken ?? ""),
+        telegramChatId: String(body?.chatId ?? ""),
+        telegramDefaultMessage: String(body?.defaultMessage ?? ""),
+        telegramSignature: String(body?.signature ?? ""),
+        telegramParseMode: String(body?.parseMode ?? "HTML"),
+        telegramDisablePreview: Boolean(body?.disablePreview),
+        telegramPinAfterSend: Boolean(body?.pinAfterSend),
+      },
+      create: {
+        userId: user.id,
         telegramBotToken: String(body?.botToken ?? ""),
         telegramChatId: String(body?.chatId ?? ""),
         telegramDefaultMessage: String(body?.defaultMessage ?? ""),
@@ -62,22 +70,8 @@ export async function PUT(req: Request) {
       },
     });
 
-    return Response.json({
-      ok: true,
-      config: {
-        botToken: updated.telegramBotToken,
-        chatId: updated.telegramChatId,
-        defaultMessage: updated.telegramDefaultMessage,
-        signature: updated.telegramSignature,
-        parseMode: updated.telegramParseMode,
-        disablePreview: updated.telegramDisablePreview,
-        pinAfterSend: updated.telegramPinAfterSend,
-      },
-    });
+    return Response.json({ ok: true });
   } catch {
-    return Response.json(
-      { error: "Erro ao salvar configurações do Telegram." },
-      { status: 500 }
-    );
+    return Response.json({ error: "Erro ao salvar config Telegram." }, { status: 500 });
   }
 }
