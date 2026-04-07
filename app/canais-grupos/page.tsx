@@ -24,6 +24,7 @@ type GroupItem = {
   randomMode: boolean;
   lastPostedAt?: string | null;
   isActive: boolean;
+  selectionMode?: string;
 };
 
 function cn(...classes: Array<string | false | null | undefined>) {
@@ -75,6 +76,17 @@ function Sidebar() {
           ))}
         </nav>
 
+        <div className="flex items-center justify-between gap-3">
+          <span>Seleção:</span>
+          <span className="font-semibold text-slate-700">
+            {item.selectionMode === "most_clicked"
+              ? "Mais clicado"
+              : item.selectionMode === "random"
+              ? "Aleatório"
+              : "Mais recente"}
+          </span>
+        </div>
+        
         <div className="mt-8 rounded-xl border border-blue-200 bg-white p-3 shadow-sm">
           <div className="mb-1 inline-flex rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-bold text-slate-900">
             R$ 50/mês
