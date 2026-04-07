@@ -54,6 +54,24 @@ function buildTelegramMessage(params: {
   return parts.join("\n\n");
 }
 
+function pickLink<T extends { clicks: number }>(
+  links: T[],
+  selectionMode?: string,
+  randomMode?: boolean
+) {
+  if (!links.length) return null;
+
+  if (randomMode || selectionMode === "random") {
+    return links[Math.floor(Math.random() * links.length)];
+  }
+
+  if (selectionMode === "most_clicked") {
+    return [...links].sort((a, b) => b.clicks - a.clicks)[0];
+  }
+
+  return links[0];
+}
+
 export async function POST(_req: Request, context: RouteContext) {
   try {
     const user = await getCurrentUser();
@@ -141,11 +159,13 @@ export async function POST(_req: Request, context: RouteContext) {
       );
     }
 
-    let selectedLink = links[0];
+    const selectedLink = pickLink(links, group.selectionMode, group.randomMode);
 
-    if (group.randomMode) {
-      const randomIndex = Math.floor(Math.random() * links.length);
-      selectedLink = links[randomIndex];
+    if (!selectedLink) {
+      return Response.json(
+        { error: "Nenhum link encontrado." },
+        { status: 400 }
+      );
     }
 
     const shortUrl =
