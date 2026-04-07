@@ -75,6 +75,7 @@ export async function PUT(req: Request, context: RouteContext) {
         postAuto: Boolean(body?.postAuto),
         intervalMinutes: Number(body?.intervalMinutes ?? existing.intervalMinutes),
         randomMode: Boolean(body?.randomMode),
+        selectionMode: String(body?.selectionMode ?? existing.selectionMode ?? "recent"),
 
         telegramToken: body?.telegramToken ?? "",
         telegramChatId: body?.telegramChatId ?? "",
