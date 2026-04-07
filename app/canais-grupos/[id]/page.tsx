@@ -13,6 +13,7 @@ import {
   Send,
   ShoppingBag,
   Trash2,
+  selectionMode,
 } from "lucide-react";
 
 const tabsList = [
@@ -129,10 +130,13 @@ export default function EditGroupPage() {
   const [shopeeAffiliateId, setShopeeAffiliateId] = useState("");
   const [shopeeSubId, setShopeeSubId] = useState("");
 
+  const [selectionMode, setSelectionMode] = useState("recent");
+
   async function loadGroup() {
     try {
       setLoading(true);
       setErrorMessage("");
+      setSelectionMode(group.selectionMode ?? "recent");
 
       const res = await fetch(`/api/groups/${id}`, {
         cache: "no-store",
