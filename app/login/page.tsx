@@ -22,72 +22,73 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen px-6 py-10 text-white bg-slate-950">
-      <div className="mx-auto grid min-h-[80vh] max-w-6xl items-center gap-10 lg:grid-cols-2">
-
-        {/* LEFT */}
-        <div>
-          <div className="inline-flex rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-2 text-sm text-blue-300">
+    <main className="flex min-h-screen items-center justify-center bg-[var(--bg)] px-4 py-10">
+      <div className="grid w-full max-w-6xl overflow-hidden rounded-3xl border border-[var(--line)] bg-white shadow-[0_30px_80px_rgba(15,23,42,0.08)] lg:grid-cols-2">
+        <section className="bg-[linear-gradient(135deg,#4f6df5,#6f8cff)] px-8 py-10 text-white md:px-12">
+          <div className="inline-flex rounded-full bg-white/15 px-3 py-1 text-sm font-semibold">
             Entrar na plataforma
           </div>
 
-          <h1 className="mt-6 text-4xl font-bold leading-tight md:text-5xl">
+          <h1 className="mt-6 text-4xl font-black leading-tight">
             Acesse seu painel e controle toda a sua operação.
           </h1>
 
-          <p className="mt-5 max-w-xl text-lg leading-8 text-slate-300">
+          <p className="mt-4 max-w-xl text-white/85">
             Gerencie links, acompanhe cliques, faça upgrade, envie para Telegram
             e automatize seus melhores produtos.
           </p>
-        </div>
 
-        {/* RIGHT (FORM) */}
-        <div className="rounded-[28px] border border-slate-800 bg-slate-950/85 p-6 shadow-2xl shadow-black/30">
-          <div className="rounded-[24px] border border-slate-800 bg-slate-900 p-6">
-            <h2 className="text-2xl font-bold">Login</h2>
-            <p className="mt-2 text-sm text-slate-400">
+          <div className="mt-10 grid gap-4 sm:grid-cols-2">
+            <div className="rounded-2xl border border-white/15 bg-white/10 p-4">
+              <div className="text-sm text-white/80">Automação</div>
+              <div className="mt-2 text-xl font-bold">Telegram + campanhas</div>
+            </div>
+            <div className="rounded-2xl border border-white/15 bg-white/10 p-4">
+              <div className="text-sm text-white/80">Monitoramento</div>
+              <div className="mt-2 text-xl font-bold">Cliques e desempenho</div>
+            </div>
+          </div>
+        </section>
+
+        <section className="px-8 py-10 md:px-12">
+          <div className="mx-auto max-w-md">
+            <h2 className="text-2xl font-bold text-[var(--text)]">Login</h2>
+            <p className="mt-2 text-sm text-[var(--muted)]">
               Use seu email e senha para entrar.
             </p>
 
-            <form onSubmit={login} className="mt-6 space-y-4">
-
-              {/* EMAIL */}
+            <form onSubmit={login} className="mt-8 space-y-4">
               <div>
-                <label className="mb-2 block text-sm text-slate-300">Email</label>
+                <label className="mb-2 block text-sm font-semibold text-[var(--text)]">
+                  Email
+                </label>
                 <input
-                  type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="seuemail@email.com"
-                  className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-blue-500"
+                  className="px-4 py-3"
                 />
               </div>
 
-              {/* SENHA */}
               <div>
-                <label className="mb-2 block text-sm text-slate-300">Senha</label>
+                <label className="mb-2 block text-sm font-semibold text-[var(--text)]">
+                  Senha
+                </label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-blue-500"
+                  className="px-4 py-3"
                 />
               </div>
 
-              {/* BOTÃO */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full rounded-2xl bg-blue-600 py-3 font-bold text-white transition hover:bg-blue-700 disabled:opacity-60"
-              >
+              <button type="submit" className="btn btn-primary w-full">
                 {loading ? "Entrando..." : "Entrar"}
               </button>
-
             </form>
           </div>
-        </div>
-
+        </section>
       </div>
     </main>
   );
