@@ -1,95 +1,66 @@
-"use client";
-
-import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { signIn } from "next-auth/react"
+import { FaGoogle, FaYoutube, FaInstagram, FaTelegram, FaWhatsapp, FaQuestionCircle } from "react-icons/fa"
+import Image from "next/image"
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  async function login(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-
-    await signIn("credentials", {
-      email,
-      password,
-      callbackUrl: "/dashboard",
-    });
-
-    setLoading(false);
-  }
-
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[var(--bg)] px-4 py-10">
-      <div className="grid w-full max-w-6xl overflow-hidden rounded-3xl border border-[var(--line)] bg-white shadow-[0_30px_80px_rgba(15,23,42,0.08)] lg:grid-cols-2">
-        <section className="bg-[linear-gradient(135deg,#4f6df5,#6f8cff)] px-8 py-10 text-white md:px-12">
-          <div className="inline-flex rounded-full bg-white/15 px-3 py-1 text-sm font-semibold">
-            Entrar na plataforma
+    <div className="min-h-screen flex items-center justify-center bg-white px-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg border-gray-100 p-8">
+        
+        {/* Logo */}
+        <div className="flex justify-center mb-6">
+          <div className="w-24 h-24 rounded-full border-4 border-gray-100 shadow-sm overflow-hidden">
+            <Image 
+              src="/logo.png" // Troca pelo caminho da sua logo
+              alt="Logo"
+              width={96}
+              height={96}
+              className="object-cover"
+            />
           </div>
+        </div>
 
-          <h1 className="mt-6 text-4xl font-black leading-tight">
-            Acesse seu painel e controle toda a sua operação.
-          </h1>
+        {/* Título */}
+        <h1 className="text-2xl font-medium text-center text-gray-800 mb-8">
+          Faça login
+        </h1>
 
-          <p className="mt-4 max-w-xl text-white/85">
-            Gerencie links, acompanhe cliques, faça upgrade, envie para Telegram
-            e automatize seus melhores produtos.
-          </p>
+        {/* Botão Google */}
+        <button
+          onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
+          className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-lg py-3 px-4 text-gray-700 font-medium hover:bg-gray-50 transition"
+        >
+          <FaGoogle className="text-blue-500 text-xl" />
+          Entrar com Google
+        </button>
 
-          <div className="mt-10 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-white/15 bg-white/10 p-4">
-              <div className="text-sm text-white/80">Automação</div>
-              <div className="mt-2 text-xl font-bold">Telegram + campanhas</div>
-            </div>
-            <div className="rounded-2xl border border-white/15 bg-white/10 p-4">
-              <div className="text-sm text-white/80">Monitoramento</div>
-              <div className="mt-2 text-xl font-bold">Cliques e desempenho</div>
-            </div>
-          </div>
-        </section>
+        {/* Divisor */}
+        <div className="border-t border-gray-200 my-8"></div>
 
-        <section className="px-8 py-10 md:px-12">
-          <div className="mx-auto max-w-md">
-            <h2 className="text-2xl font-bold text-[var(--text)]">Login</h2>
-            <p className="mt-2 text-sm text-[var(--muted)]">
-              Use seu email e senha para entrar.
-            </p>
+        {/* Ícones sociais */}
+        <div className="flex justify-center gap-5 mb-8">
+          <a href="#" target="_blank" className="text-red-600 text-2xl hover:scale-110 transition">
+            <FaYoutube />
+          </a>
+          <a href="#" target="_blank" className="text-pink-600 text-2xl hover:scale-110 transition">
+            <FaInstagram />
+          </a>
+          <a href="#" target="_blank" className="text-sky-500 text-2xl hover:scale-110 transition">
+            <FaTelegram />
+          </a>
+          <a href="#" target="_blank" className="text-green-500 text-2xl hover:scale-110 transition">
+            <FaWhatsapp />
+          </a>
+          <a href="#" target="_blank" className="text-blue-600 text-2xl hover:scale-110 transition">
+            <FaQuestionCircle />
+          </a>
+        </div>
 
-            <form onSubmit={login} className="mt-8 space-y-4">
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-[var(--text)]">
-                  Email
-                </label>
-                <input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="seuemail@email.com"
-                  className="px-4 py-3"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-[var(--text)]">
-                  Senha
-                </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="px-4 py-3"
-                />
-              </div>
-
-              <button type="submit" className="btn btn-primary w-full">
-                {loading ? "Entrando..." : "Entrar"}
-              </button>
-            </form>
-          </div>
-        </section>
+        {/* Footer */}
+        <p className="text-center text-gray-500 text-sm">
+          © 2025
+        </p>
       </div>
-    </main>
-  );
+    </div>
+  )
 }
