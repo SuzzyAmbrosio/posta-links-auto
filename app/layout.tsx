@@ -2,8 +2,12 @@ import "./globals.css";
 import Providers from "./providers";
 
 export const metadata = {
-  title: "DivulgaLinks",
-  description: "Plataforma de links, automação e divulgação",
+  title: 'DisparaLink - Seu hub de links',
+  description: 'Crie sua página de links personalizada com DisparaLink',
+  icons: {
+    icon: '/logo.png',
+  },
+}
 };
 
 export default function RootLayout({
