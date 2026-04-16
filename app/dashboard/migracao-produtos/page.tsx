@@ -20,7 +20,7 @@ const historicoMock: ImportHistory[] = [
     id: "1",
     arquivo: "",
     origem: "Shopee",
-    produtos: "",
+    produtos: 0,
     status: "aguardando",
     data: ""
   },
@@ -28,7 +28,7 @@ const historicoMock: ImportHistory[] = [
     id: "2", 
     arquivo: "",
     origem: "Amazon",
-    produtos: "",
+    produtos: 0,
     status: "concluido",
     data: "11/04/2026 09:15"
   },
@@ -36,7 +36,7 @@ const historicoMock: ImportHistory[] = [
     id: "3",
     arquivo: "",
     origem: "Mercado Livre",
-    produtos: "",
+    produtos: 0,
     status: "erro",
     data: "10/04/2026 16:40",
     erros: 23
