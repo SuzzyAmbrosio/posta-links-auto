@@ -4,7 +4,31 @@ import { useState } from "react"
 import { ExternalLink } from "lucide-react"
 import Image from "next/image"
 
-const affiliatePlatforms = [
+type Field = {
+  name: string
+  type: string
+  placeholder?: string
+  value?: string
+}
+
+type Platform = {
+  id: string
+  name: string
+  logo: string
+  fields: Field[]
+  helpText?: string
+  helpBox?: {
+    title: string
+    steps: string[]
+    videoButton?: string
+  }
+  warning?: string
+  note?: string
+  programBox?: string
+  footerLink?: string
+}
+
+const affiliatePlatforms: Platform[] = [
   {
     id: "aliexpress",
     name: "Afiliados AliExpress",
