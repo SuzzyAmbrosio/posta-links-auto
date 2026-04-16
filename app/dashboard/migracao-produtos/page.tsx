@@ -9,7 +9,7 @@ type ImportHistory = {
   id: string
   arquivo: string
   origem: string
-  produtos: number | string // aceita os dois
+  produtos: number
   status: ImportStatus
   data: string
   erros?: number
@@ -92,7 +92,7 @@ export default function MigracaoProdutosPage() {
 
   const totalProdutos = historico
    .filter(h => h.status === "concluido")
-   .reduce((acc, h) => acc + h.produtos, 0)
+   .reduce((acc, h) => acc + Number(h.produtos), 0)
 
   return (
     <div className="space-y-6">
