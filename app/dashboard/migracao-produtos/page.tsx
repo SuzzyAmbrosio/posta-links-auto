@@ -9,18 +9,10 @@ type ImportHistory = {
   id: string
   arquivo: string
   origem: string
-  produtos: number
+  produtos: number | string // aceita os dois
   status: ImportStatus
   data: string
   erros?: number
-}
-
-type Migracao = {
-  arquivo: string
-  origem: string
-  produtos: number | string // aceita os dois
-  status: string
-  data: string
 }
 
 const historicoMock: ImportHistory[] = [
