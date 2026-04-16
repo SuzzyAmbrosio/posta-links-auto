@@ -87,7 +87,7 @@ export default function ConfigAfiliadosPage() {
             </div>
 
             {/* Warning */}
-            {platform.warning && (
+            {('warning' in platform) && platform.warning && (
               <div className="mb-4 rounded border border-red-200 bg-red-50 p-3 text-xs text-red-700">
                 ⚠️ {platform.warning}
               </div>
