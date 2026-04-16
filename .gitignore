@@ -4,4 +4,16 @@
 .env.development.local
 .env.test.local
 .env.production.local
+
+# dependencies
 node_modules
+
+# next.js
+.next
+
+# build
+dist
+build
+
+# misc
+.DS_Store
