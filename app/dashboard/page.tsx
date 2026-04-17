@@ -225,7 +225,13 @@ export default function DashboardPage() {
             <h1 className="text-xl font-bold text-gray-900">Dashboard Posta Links Auto</h1>
             <p className="text-sm text-gray-600">Painel principal de campanhas, canais e automações</p>
           </div>
-          <button className="rounded-lg border border-blue-600 px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50">
+          <button 
+            className="rounded-lg border border-blue-600 px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50"
+            onClick={() => {
+              carregarLinks();
+              toast.info("Atualizando dados...");
+            }}
+          >
             Atualizar
           </button>
         </div>
