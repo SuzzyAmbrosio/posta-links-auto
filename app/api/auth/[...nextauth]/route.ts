@@ -1,7 +1,7 @@
 import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import { prisma } from "@/lib/prisma"
+import { PrismaAdapter } from "@next-auth/prisma-adapter"
+import { prisma } from "@/lib/prisma" // ajusta seu import
 
 const handler = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -9,23 +9,24 @@ const handler = NextAuth({
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    })
+    }),
   ],
-  callbacks: {
-    async session({ session, user, token }) {
-      if (session.user) {
-        session.user.id = user.id // pega do user do adapter
-        // ou se usar JWT: session.user.id = token.sub
+  secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true, // ← ADICIONA ISSO
+  
+  // Se ainda der erro, força o cookie pro domínio certo:
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: true,
       }
-      return session
-    },
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id
-      }
-      return token
     }
-  }
+  },
+  // resto da sua config...
 })
 
 export { handler as GET, handler as POST }
