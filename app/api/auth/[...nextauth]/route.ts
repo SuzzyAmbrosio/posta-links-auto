@@ -12,12 +12,11 @@ const handler = NextAuth({
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
-  trustHost: true, // ← ADICIONA ISSO
+  // REMOVE o trustHost daqui
   
-  // Se ainda der erro, força o cookie pro domínio certo:
   cookies: {
     sessionToken: {
-      name: `next-auth.session-token`,
+      name: `__Secure-next-auth.session-token`,
       options: {
         httpOnly: true,
         sameSite: 'lax',
@@ -26,7 +25,6 @@ const handler = NextAuth({
       }
     }
   },
-  // resto da sua config...
 })
 
 export { handler as GET, handler as POST }
