@@ -3,14 +3,16 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,
-  { params }: { params: { shortCode: string } }
+  { params }: { params: Promise<{ shortCode: string }> }
 ) {
+  const { shortCode } = await params;
+  
   const link = await prisma.link.findUnique({
-    where: { shortCode: params.shortCode },
+    where: { shortCode },
   });
 
   if (!link) {
-    return NextResponse.redirect(new URL("/404", request.url));
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   await prisma.link.update({
