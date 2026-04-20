@@ -78,19 +78,23 @@ export default function AfiliadosPage() {
   )
 
   const BotaoSalvar = ({ platform, data }: any) => (
-    <>
-      <button
-        onClick={() => salvar(platform, data)}
-        disabled={loading === platform}
-        className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-      >
-        {loading === platform? "Salvando..." : "Salvar"}
-      </button>
-      <div className="mt-2 rounded-lg bg-blue-50 px-4 py-2 text-center text-xs text-blue-700">
-        💡 Dúvidas? CLIQUE AQUI
-      </div>
-    </>
-  )
+  <>
+    <button
+      type="button"
+      onClick={() => {
+        console.log("Clicou salvar:", platform, data)
+        salvar(platform, data)
+      }}
+      disabled={loading === platform}
+      className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+    >
+      {loading === platform? "Salvando..." : "Salvar"}
+    </button>
+    <div className="mt-2 rounded-lg bg-blue-50 px-4 py-2 text-center text-xs text-blue-700">
+      💡 Dúvidas? CLIQUE AQUI
+    </div>
+  </>
+)
 
   return (
     <div className="p-6">
