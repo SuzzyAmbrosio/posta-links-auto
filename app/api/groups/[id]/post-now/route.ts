@@ -179,8 +179,8 @@ export async function POST(_req: Request, context: RouteContext) {
       customTitle: group.postTitle,
       priceLabel: group.postPriceLabel,
       cta: group.postCta,
-      defaultMessage: user.settings?.telegramDefaultMessage,
-      signature: user.settings?.telegramSignature,
+      defaultMessage: user.settings?.telegramDefaultMessage || undefined,
+      signature: user.settings?.telegramSignature || undefined,
     });
 
     const telegramRes = await fetch(
