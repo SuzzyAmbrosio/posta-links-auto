@@ -23,7 +23,7 @@ export async function GET() {
       return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
     }
 
-    const settings = await prisma.userSettings.findUnique({
+    const settings = await prisma.settings.findUnique({
       where: { userId: user.id },
     });
 
@@ -57,7 +57,7 @@ export async function PUT(req: Request) {
 
     const body = await req.json();
 
-    const settings = await prisma.userSettings.upsert({
+    const settings = await prisma.settings.upsert({
       where: { userId: user.id },
       update: {
         telegramBotToken: body.telegramBotToken ?? "",

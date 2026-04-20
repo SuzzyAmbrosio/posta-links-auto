@@ -46,7 +46,7 @@ export async function PUT(req: Request) {
 
     const body = await req.json();
 
-    await prisma.userSettings.upsert({
+    await prisma.settings.upsert({
       where: { userId: user.id },
       update: {
         whatsappGroupName: String(body?.groupName ?? ""),
