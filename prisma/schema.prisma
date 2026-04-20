@@ -124,6 +124,11 @@ model Settings {
   telegramDefaultMessage String? @default("")
   telegramSignature String? @default("")
   
+  whatsappGroupName String? @default("")
+  whatsappInviteLink String? @default("")
+  whatsappDefaultMessage String? @default("")
+  whatsappFooterCta String? @default("")
+  
   // AliExpress
   aliexpressAppKey String?
   aliexpressSecret String?
