@@ -111,28 +111,37 @@ model Group {
   updatedAt DateTime @default(now()) @updatedAt
 }
 
-model UserSettings {
+model Settings {
   id String @id @default(cuid())
   userId String @unique
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  telegramBotToken String @default("")
-  telegramChatId String @default("")
-  telegramDefaultMessage String @default("")
-  telegramSignature String @default("")
-  telegramParseMode String @default("HTML")
+  user User @relation(fields: [userId], references: [id])
+  
+  telegramBotToken String?
+  telegramChatId String?
+  telegramParseMode String? @default("HTML")
   telegramDisablePreview Boolean @default(false)
-  telegramPinAfterSend Boolean @default(false)
-
-  whatsappGroupName String @default("")
-  whatsappInviteLink String @default("")
-  whatsappDefaultMessage String @default("")
-  whatsappFooterCta String @default("")
-  whatsappIncludeInviteLink Boolean @default(true)
-  whatsappShortenText Boolean @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  
+  // AliExpress
+  aliexpressAppKey String?
+  aliexpressSecret String?
+  aliexpressTrackingId String?
+  
+  // Amazon
+  amazonAccessKey String?
+  amazonSecretKey String?
+  amazonAssociateTag String?
+  
+  // Shopee
+  shopeeAffiliateId String?
+  shopeeAppKey String?
+  
+  // Mercado Livre
+  mlAffiliateLink String?
+  mlCode String?
+  
+  // Shein
+  sheinAffiliateCode String?
+  sheinTrackingId String?
 }
 
 model PostLog {
