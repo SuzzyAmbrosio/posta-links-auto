@@ -43,11 +43,14 @@ export default function AfiliadosPage() {
         body: JSON.stringify({ platform,...data }),
       });
 
-      if (!res.ok) throw new Error();
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error);
+
       toast.success("Salvo com sucesso!");
       await loadSettings();
-    } catch {
-      toast.error("Erro ao salvar");
+    } catch (e: any) {
+      toast.error(e.message || "Erro ao salvar");
+      console.error(e);
     } finally {
       setLoading(null);
     }
@@ -92,10 +95,10 @@ export default function AfiliadosPage() {
   return (
     <div className="p-6">
       <h1 className="mb-6 text-2xl font-bold">Config Afiliados</h1>
-      
+
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <Card title="Afiliados AliExpress" icon="🛍️">
-          <Input label="ALIEXPRESS APP KEY" value={settings.aliexpressAppKey} 
+          <Input label="ALIEXPRESS APP KEY" value={settings.aliexpressAppKey}
             onChange={(e: any) => setSettings({...settings, aliexpressAppKey: e.target.value})} />
           <Input label="ALIEXPRESS SECRET" value={settings.aliexpressSecret}
             onChange={(e: any) => setSettings({...settings, aliexpressSecret: e.target.value})} />
