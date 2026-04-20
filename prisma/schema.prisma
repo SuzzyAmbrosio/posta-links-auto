@@ -120,6 +120,7 @@ model Settings {
   telegramChatId String?
   telegramParseMode String? @default("HTML")
   telegramDisablePreview Boolean @default(false)
+  telegramPinAfterSend Boolean @default(false)
   telegramDefaultMessage String? @default("")
   telegramSignature String? @default("")
   
