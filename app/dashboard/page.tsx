@@ -106,7 +106,7 @@ export default function DashboardPage() {
           <span className="rounded-full bg-navy-100 px-3 py-1 text-navy-700">Amazon</span>
           <span className="rounded-full bg-yellow-100 px-3 py-1 text-yellow-700">Mercado Livre</span>
           <span className="rounded-full bg-darkorange-100 px-3 py-1 text-darkorange-700">AliExpress</span>
-          <span className="rounded-full bg-black-100 px-3 py-1 text-black-700">Shein</span>
+          <span className="rounded-full bg-darkgray-100 px-3 py-1 text-darkgray-700">Shein</span>
         </div>
       </div>
 
