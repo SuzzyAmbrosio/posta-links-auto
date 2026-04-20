@@ -1,58 +1,58 @@
 'use client'
 
-import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
-import { toast } from "sonner";
+import { useEffect, useState } from "react"
+import { useSession } from "next-auth/react"
+import { toast } from "sonner"
 
 type Settings = {
-  aliexpressAppKey?: string;
-  aliexpressSecret?: string;
-  aliexpressTrackingId?: string;
-  amazonAccessKey?: string;
-  amazonSecretKey?: string;
-  amazonAssociateTag?: string;
-  shopeeAffiliateId?: string;
-  shopeeAppKey?: string;
-  mlAffiliateLink?: string;
-  mlCode?: string;
-  sheinAffiliateCode?: string;
-  sheinTrackingId?: string;
-};
+  aliexpressAppKey?: string
+  aliexpressSecret?: string
+  aliexpressTrackingId?: string
+  amazonAccessKey?: string
+  amazonSecretKey?: string
+  amazonAssociateTag?: string
+  shopeeAffiliateId?: string
+  shopeeAppKey?: string
+  mlAffiliateLink?: string
+  mlCode?: string
+  sheinAffiliateCode?: string
+  sheinTrackingId?: string
+}
 
 export default function AfiliadosPage() {
-  const { data: session } = useSession();
-  const [settings, setSettings] = useState<Settings>({});
-  const [loading, setLoading] = useState<string | null>(null);
+  const { data: session } = useSession()
+  const [settings, setSettings] = useState<Settings>({})
+  const [loading, setLoading] = useState<string | null>(null)
 
   useEffect(() => {
-    if (session) loadSettings();
-  }, [session]);
+    if (session) loadSettings()
+  }, [session])
 
   async function loadSettings() {
-    const res = await fetch("/api/affiliates");
-    const data = await res.json();
-    setSettings(data.settings || {});
+    const res = await fetch("/api/affiliates")
+    const data = await res.json()
+    setSettings(data.settings || {})
   }
 
   async function salvar(platform: string, data: any) {
-    setLoading(platform);
+    setLoading(platform)
     try {
       const res = await fetch("/api/affiliates", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ platform,...data }),
-      });
+      })
 
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.error);
+      const result = await res.json()
+      if (!res.ok) throw new Error(result.error)
 
-      toast.success("Salvo com sucesso!");
-      await loadSettings();
+      toast.success("Salvo com sucesso!")
+      await loadSettings()
     } catch (e: any) {
-      toast.error(e.message || "Erro ao salvar");
-      console.error(e);
+      toast.error(e.message || "Erro ao salvar")
+      console.error(e)
     } finally {
-      setLoading(null);
+      setLoading(null)
     }
   }
 
@@ -64,7 +64,7 @@ export default function AfiliadosPage() {
       </div>
       {children}
     </div>
-  );
+  )
 
   const Input = ({ label, value, onChange }: any) => (
     <div className="mb-3">
@@ -75,7 +75,7 @@ export default function AfiliadosPage() {
         className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
       />
     </div>
-  );
+  )
 
   const BotaoSalvar = ({ platform, data }: any) => (
     <>
@@ -86,8 +86,11 @@ export default function AfiliadosPage() {
       >
         {loading === platform? "Salvando..." : "Salvar"}
       </button>
+      <div className="mt-2 rounded-lg bg-blue-50 px-4 py-2 text-center text-xs text-blue-700">
+        💡 Dúvidas? CLIQUE AQUI
+      </div>
     </>
-  );
+  )
 
   return (
     <div className="p-6">
@@ -156,5 +159,5 @@ export default function AfiliadosPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }

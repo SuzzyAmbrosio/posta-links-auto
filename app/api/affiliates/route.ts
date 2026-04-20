@@ -1,6 +1,6 @@
-import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth" // ou "@/app/api/auth/[...nextauth]/route"
+import { authOptions } from "@/lib/auth"
+import { prisma } from "@/lib/prisma"
 
 export async function GET() {
   const session = await getServerSession(authOptions)
@@ -24,12 +24,17 @@ export async function POST(req: Request) {
   const body = await req.json()
   const { platform,...data } = body
 
+  // Remove campos vazios pra não sobrescrever dados existentes
+  const cleanData = Object.fromEntries(
+    Object.entries(data).filter(([_, v]) => v!== undefined && v!== "")
+  )
+
   await prisma.settings.upsert({
     where: { userId: session.user.id },
-    update: data,
-    create: { 
-      userId: session.user.id, 
-     ...data 
+    update: cleanData,
+    create: {
+      userId: session.user.id,
+    ...cleanData
     },
   })
 

@@ -115,7 +115,7 @@ model Settings {
   id String @id @default(cuid())
   userId String @unique
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   telegramBotToken String?
   telegramChatId String?
   telegramParseMode String? @default("HTML")
@@ -123,36 +123,32 @@ model Settings {
   telegramPinAfterSend Boolean @default(false)
   telegramDefaultMessage String? @default("")
   telegramSignature String? @default("")
-  
+
   whatsappGroupName String? @default("")
   whatsappInviteLink String? @default("")
   whatsappDefaultMessage String? @default("")
   whatsappFooterCta String? @default("")
   whatsappIncludeInviteLink Boolean @default(false)
   whatsappShortenText Boolean @default(false)
-  
-  // AliExpress
+
+  // Afiliados
   aliexpressAppKey String?
   aliexpressSecret String?
   aliexpressTrackingId String?
-  
-  // Amazon
+
   amazonAccessKey String?
   amazonSecretKey String?
   amazonAssociateTag String?
-  
-  // Shopee
+
   shopeeAffiliateId String?
   shopeeAppKey String?
-  
-  // Mercado Livre
+
   mlAffiliateLink String?
   mlCode String?
-  
-  // Shein
+
   sheinAffiliateCode String?
   sheinTrackingId String?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
