@@ -253,8 +253,8 @@ export default function ConfigAfiliadosPage() {
         >
           <div className="mt-4 rounded bg-blue-50 p-4 text-xs text-gray-700">
             <p className="mb-2 font-semibold">💡 Como obter suas credenciais</p>
-            <p className="mb-2">1. Link de Afiliado: Acesse sua conta de afiliado do Mercado Livre > Clique em 'Meus Links' > 'Compartilhar' ou copie qualquer link de produto. Cole o link completo no campo ao lado. O sistema irá automaticamente extrair sua Tag.</p>
-            <p className="mb-2">2. Código do Mercado Livre: Acesse sua conta de afiliado do Mercado Livre. Procure por 'ID de Afiliado' ou 'Código de Afiliado'. Na página de 'Anúncios' > 'Meus Links' > 'Gerar Link' > 'Personalizado'. Em 'Recomendados' > 'Busca' > 'Copiar'.</p>
+            <p className="mb-2">1. Link de Afiliado: Acesse sua conta de afiliado do Mercado Livre &gt; Clique em 'Meus Links' &gt; 'Compartilhar' ou copie qualquer link de produto. Cole o link completo no campo ao lado. O sistema irá automaticamente extrair sua Tag.</p>
+            <p className="mb-2">2. Código do Mercado Livre: Acesse sua conta de afiliado do Mercado Livre. Procure por 'ID de Afiliado' ou 'Código de Afiliado'. Na página de 'Anúncios' &gt; 'Meus Links' &gt; 'Gerar Link' &gt; 'Personalizado'. Em 'Recomendados' &gt; 'Busca' &gt; 'Copiar'.</p>
             <p className="mb-2">⚠️ Importante: Use o código apenas se não conseguir o link acima. Se a tag já estiver presente no link, o sistema irá priorizá-la.</p>
             <button className="mt-2 flex items-center gap-1 text-blue-600 hover:underline">
               <ExternalLink size={14} />
