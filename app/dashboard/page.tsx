@@ -97,15 +97,15 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex flex-wrap gap-2 text-sm">
-          <span className="rounded-full bg-gray-100 px-3 py-1">Geral</span>
+          <span className="rounded-full bg-silver-100 px-3 py-1 text-silver-700">Geral</span>
           <span className="rounded-full bg-blue-100 px-3 py-1 text-blue-700">Telegram</span>
           <span className="rounded-full bg-green-100 px-3 py-1 text-green-700">WhatsApp - Grupos/Canais</span>
-          <span className="rounded-full bg-purple-100 px-3 py-1 text-purple-700">Instagram</span>
+          <span className="rounded-full bg-violet-100 px-3 py-1 text-violet-700">Instagram</span>
           <span className="rounded-full bg-red-100 px-3 py-1 text-red-700">Layout Post</span>
           <span className="rounded-full bg-orange-100 px-3 py-1 text-orange-700">Shopee</span>
-          <span className="rounded-full bg-navyblue-100 px-3 py-1 text-navyblue-700">Amazon</span>
+          <span className="rounded-full bg-navy-100 px-3 py-1 text-navy-700">Amazon</span>
           <span className="rounded-full bg-yellow-100 px-3 py-1 text-yellow-700">Mercado Livre</span>
-          <span className="rounded-full bg-americanorange-100 px-3 py-1 text-americanorange-700">AliExpress</span>
+          <span className="rounded-full bg-darkorange-100 px-3 py-1 text-darkorange-700">AliExpress</span>
           <span className="rounded-full bg-black-100 px-3 py-1 text-black-700">Shein</span>
         </div>
       </div>
