@@ -20,7 +20,7 @@ model User {
   sessions Session[]
   links Link[]
   groups Group[]
-  settings UserSettings?
+  settings Settings?
   postLogs PostLog[]
 
   createdAt DateTime @default(now())
@@ -114,7 +114,7 @@ model Group {
 model Settings {
   id String @id @default(cuid())
   userId String @unique
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   telegramBotToken String?
   telegramChatId String?
@@ -142,6 +142,9 @@ model Settings {
   // Shein
   sheinAffiliateCode String?
   sheinTrackingId String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model PostLog {
@@ -160,4 +163,3 @@ model PostLog {
   userId String
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
-
