@@ -216,8 +216,8 @@ export async function GET() {
           customTitle: group.postTitle,
           priceLabel: group.postPriceLabel,
           cta: group.postCta,
-          defaultMessage: settings?.telegramDefaultMessage,
-          signature: settings?.telegramSignature,
+          defaultMessage: settings?.telegramDefaultMessage || undefined,
+          signature: settings?.telegramSignature || undefined,
         });
 
         const telegramRes = await fetch(
