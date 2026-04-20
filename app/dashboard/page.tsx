@@ -103,9 +103,9 @@ export default function DashboardPage() {
           <span className="rounded-full bg-purple-100 px-3 py-1 text-purple-700">Instagram</span>
           <span className="rounded-full bg-red-100 px-3 py-1 text-red-700">Layout Post</span>
           <span className="rounded-full bg-orange-100 px-3 py-1 text-orange-700">Shopee</span>
-          <span className="rounded-full bg-navy-blue-100 px-3 py-1 text-navy-blue-700">Amazon</span>
+          <span className="rounded-full bg-navyblue-100 px-3 py-1 text-navyblue-700">Amazon</span>
           <span className="rounded-full bg-yellow-100 px-3 py-1 text-yellow-700">Mercado Livre</span>
-          <span className="rounded-full bg-american-orange-100 px-3 py-1 text-american-orange-700">AliExpress</span>
+          <span className="rounded-full bg-americanorange-100 px-3 py-1 text-americanorange-700">AliExpress</span>
           <span className="rounded-full bg-black-100 px-3 py-1 text-black-700">Shein</span>
         </div>
       </div>
