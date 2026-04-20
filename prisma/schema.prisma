@@ -128,6 +128,8 @@ model Settings {
   whatsappInviteLink String? @default("")
   whatsappDefaultMessage String? @default("")
   whatsappFooterCta String? @default("")
+  whatsappIncludeInviteLink Boolean @default(false)
+  whatsappShortenText Boolean @default(false)
   
   // AliExpress
   aliexpressAppKey String?
