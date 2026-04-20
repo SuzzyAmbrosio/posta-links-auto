@@ -38,6 +38,7 @@ const affiliatePlatforms: Platform[] = [
       { name: "ALIEXPRESS SECRET", type: "text" },
       { name: "ALIEXPRESS TRACKING ID", type: "text" },
     ],
+    helpText: "Dúvidas? CLIQUE AQUI"
   },
   {
     id: "amazon",
@@ -48,6 +49,7 @@ const affiliatePlatforms: Platform[] = [
       { name: "AMAZON SECRET KEY", type: "text" },
       { name: "AMAZON ASSOCIATE TAG", type: "text" },
     ],
+    helpText: "Dúvidas? CLIQUE AQUI"
   },
   {
     id: "shopee",
@@ -57,6 +59,7 @@ const affiliatePlatforms: Platform[] = [
       { name: "SHOPEE ID DE AFILIADO", type: "text"},
       { name: "SHOPEE APP KEY", type: "text"},
     ],
+    helpText: "Dúvidas? CLIQUE AQUI",
   },
   {
     id: "mercadolivre",
@@ -84,6 +87,7 @@ const affiliatePlatforms: Platform[] = [
       { name: "SHEIN CÓDIGO DE AFILIADO", type: "text" },
       { name: "SHEIN TRACKING ID", type: "text" },
     ],
+    helpText: "Dúvidas? CLIQUE AQUI"
   },
 ]
 
