@@ -81,7 +81,9 @@ export default function AfiliadosPage() {
   <>
     <button
       type="button"
-      onClick={() => {
+      onClick={(e) => {
+        e.preventDefault() // <- IMPEDE O FORM DE RECARREGAR
+        e.stopPropagation()
         console.log("Clicou salvar:", platform, data)
         salvar(platform, data)
       }}
