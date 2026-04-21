@@ -21,6 +21,7 @@ export default function ConfigWhatsappPage() {
   const [telegramBotToken, setTelegramBotToken] = useState("")
   const [telegramChatId, setTelegramChatId] = useState("")
   const [telegramConnected, setTelegramConnected] = useState(false)
+  const [isSavingTelegram, setIsSavingTelegram] = useState(false)
   const [isDisconnectingTelegram, setIsDisconnectingTelegram] = useState(false)
 
   useEffect(() => {
@@ -41,11 +42,14 @@ export default function ConfigWhatsappPage() {
       setWhatsappInstanceId(s.whatsappInstanceId || "")
       setWhatsappToken(s.whatsappToken || "")
       setWhatsappGroupId(s.whatsappGroupId || "")
-      setIsConnected(!!s.whatsappNumber &&!!s.whatsappInstanceId &&!!s.whatsappToken &&!!s.whatsappGroupId)
+
+      // Checa se todos os campos estão preenchidos pra marcar como conectado
+      const whatsappConectado =!!(s.whatsappNumber?.trim() && s.whatsappInstanceId?.trim() && s.whatsappToken?.trim() && s.whatsappGroupId?.trim())
+      setIsConnected(whatsappConectado)
 
       setTelegramBotToken(s.telegramBotToken || "")
       setTelegramChatId(s.telegramChatId || "")
-      setTelegramConnected(!!s.telegramBotToken &&!!s.telegramChatId)
+      setTelegramConnected(!!(s.telegramBotToken?.trim() && s.telegramChatId?.trim()))
     } catch (e) {
       console.error(e)
     }
@@ -95,6 +99,7 @@ export default function ConfigWhatsappPage() {
 
       setIsConnected(true)
       toast.success("WhatsApp configurado com sua API!")
+      loadSettings() // Recarrega pra garantir
     } catch (e: any) {
       toast.error(e.message)
       setIsConnected(false)
@@ -122,6 +127,36 @@ export default function ConfigWhatsappPage() {
       toast.error(e.message)
     } finally {
       setIsDisconnecting(false)
+    }
+  }
+
+  async function salvarTelegram() {
+    if (!telegramBotToken ||!telegramChatId) {
+      toast.error("Preencha Token e Chat ID")
+      return
+    }
+
+    setIsSavingTelegram(true)
+    try {
+      const res = await fetch("/api/telegram", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          telegramBotToken: telegramBotToken.trim(),
+          telegramChatId: telegramChatId.trim(),
+        }),
+      })
+
+      const result = await res.json()
+      if (!res.ok) throw new Error(result.error)
+
+      setTelegramConnected(true)
+      toast.success("Telegram configurado!")
+      loadSettings()
+    } catch (e: any) {
+      toast.error(e.message)
+    } finally {
+      setIsSavingTelegram(false)
     }
   }
 
@@ -318,7 +353,7 @@ export default function ConfigWhatsappPage() {
                 disabled={!whatsappNumber ||!whatsappInstanceId ||!whatsappToken ||!whatsappGroupId || isSaving}
                 className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isSaving? "Salvando..." : "Conectar WhatsApp"}
+                {isSaving? "Salvando..." : "Conectar Minha API"}
               </button>
             )}
             <button
@@ -362,9 +397,6 @@ export default function ConfigWhatsappPage() {
               disabled={telegramConnected}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none disabled:bg-gray-100"
             />
-            <p className="mt-1 text-xs text-gray-500">
-              Pegue no @BotFather → /newbot
-            </p>
           </div>
 
           <div>
@@ -379,9 +411,19 @@ export default function ConfigWhatsappPage() {
               disabled={telegramConnected}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none disabled:bg-gray-100"
             />
-            <p className="mt-1 text-xs text-gray-500">
-              Adiciona o bot no grupo e manda /start, depois pega o ID
-            </p>
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            {!telegramConnected && (
+              <button
+                type="button"
+                onClick={salvarTelegram}
+                disabled={!telegramBotToken ||!telegramChatId || isSavingTelegram}
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSavingTelegram? "Salvando..." : "Salvar Configuração"}
+              </button>
+            )}
           </div>
         </div>
       </div>
