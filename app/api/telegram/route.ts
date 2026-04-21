@@ -35,13 +35,27 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Preencha o Bot Token" }, { status: 400 })
     }
 
+    // Valida o token antes de salvar
+    try {
+      const res = await fetch(`https://api.telegram.org/bot${telegramBotToken}/getMe`)
+      const data = await res.json()
+      if (!data.ok) throw new Error("Token inválido")
+    } catch (e) {
+      return NextResponse.json({ error: "Token inválido ou bot inativo" }, { status: 400 })
+    }
+
     await prisma.settings.upsert({
       where: { userId: session.user.id },
-      update: { telegramBotToken, telegramChatId },
+      update: {
+        telegramBotToken,
+        telegramChatId,
+        telegramConnected: true // ADICIONA ISSO
+      },
       create: {
         userId: session.user.id,
         telegramBotToken,
         telegramChatId,
+        telegramConnected: true // E ISSO
       },
     })
 

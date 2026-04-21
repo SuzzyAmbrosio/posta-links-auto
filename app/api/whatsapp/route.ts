@@ -41,13 +41,20 @@ export async function POST(req: Request) {
 
     await prisma.settings.upsert({
       where: { userId: session.user.id },
-      update: { whatsappNumber, whatsappInstanceId, whatsappToken, whatsappGroupId },
+      update: {
+        whatsappNumber,
+        whatsappInstanceId,
+        whatsappToken,
+        whatsappGroupId,
+        whatsappConnected: true // ADICIONA ISSO
+      },
       create: {
         userId: session.user.id,
         whatsappNumber,
         whatsappInstanceId,
         whatsappToken,
         whatsappGroupId,
+        whatsappConnected: true // E ISSO
       },
     })
 
