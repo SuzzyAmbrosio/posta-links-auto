@@ -25,7 +25,7 @@ export async function GET() {
     const [logs, activeGroups, totalGroups] = await Promise.all([
       prisma.postLog.findMany({
         where: { userId: user.id },
-        orderBy: { postedAt: "desc" },
+        orderBy: { createdAt: "desc" },
         take: 20,
       }),
       prisma.group.count({
