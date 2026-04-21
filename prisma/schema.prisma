@@ -3,48 +3,47 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id String @id @default(cuid())
-  name String?
-  email String? @unique
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
   emailVerified DateTime?
-  image String?
-  accounts Account[]
-  sessions Session[]
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
 
-  links Link[]
-  settings Settings?
-  whatsappEnvios WhatsappEnvio[]
-
-  // Adiciona essas 2 linhas abaixo:
-  telegramPosts TelegramPost[]
+  links            Link[]
+  settings         Settings?
+  telegramPosts    TelegramPost[]
   telegramChannels TelegramChannel[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  groups    Group[]
+  postLogs  PostLog[]
 }
 
 model TelegramPost {
-  id String @id @default(cuid())
-  userId String
+  id        String   @id @default(cuid())
+  userId    String
   channelId String?
-  message String
-  sent Boolean @default(true)
+  message   String
+  sent      Boolean  @default(true)
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
 }
 
 model TelegramChannel {
-  id String @id @default(cuid())
-  userId String
-  chatId String
-  name String?
+  id        String   @id @default(cuid())
+  userId    String
+  chatId    String
+  name      String?
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
@@ -53,18 +52,18 @@ model TelegramChannel {
 }
 
 model Account {
-  id String @id @default(cuid())
-  userId String
-  type String
-  provider String
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
   providerAccountId String
-  refresh_token String? @db.Text
-  access_token String? @db.Text
-  expires_at Int?
-  token_type String?
-  scope String?
-  id_token String? @db.Text
-  session_state String?
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -72,63 +71,63 @@ model Account {
 }
 
 model Session {
-  id String @id @default(cuid())
-  sessionToken String @unique
-  userId String
-  expires DateTime
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {
   identifier String
-  token String @unique
-  expires DateTime
+  token      String   @unique
+  expires    DateTime
 
   @@unique([identifier, token])
 }
 
 model Link {
-  id String @id @default(cuid())
-  title String
-  url String
+  id        String @id @default(cuid())
+  title     String
+  url       String
   shortCode String @unique
-  clicks Int @default(0)
+  clicks    Int    @default(0)
 
   userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   groupId String?
-  group Group? @relation(fields: [groupId], references: [id])
+  group   Group?  @relation(fields: [groupId], references: [id])
 
   createdAt DateTime @default(now())
 }
 
 model Group {
-  id String @id @default(cuid())
-  name String
-  internalCode String
-  postAuto Boolean @default(false)
-  intervalMinutes Int @default(30)
-  randomMode Boolean @default(false)
-  selectionMode String @default("recent")
+  id              String  @id @default(cuid())
+  name            String
+  internalCode    String
+  postAuto        Boolean @default(false)
+  intervalMinutes Int     @default(30)
+  randomMode      Boolean @default(false)
+  selectionMode   String  @default("recent")
 
-  telegramToken String @default("")
+  telegramToken  String @default("")
   telegramChatId String @default("")
 
   whatsappMessage String @default("")
 
   shopeeAffiliateId String @default("")
-  shopeeSubId String @default("")
+  shopeeSubId       String @default("")
 
-  postTitle String @default("")
+  postTitle      String @default("")
   postPriceLabel String @default("")
-  postCta String @default("")
+  postCta        String @default("")
 
   lastcreatedAt DateTime?
-  isActive Boolean @default(true)
+  isActive      Boolean   @default(true)
 
   userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   links Link[]
 
@@ -137,65 +136,65 @@ model Group {
 }
 
 model Settings {
-  id String @id @default(cuid())
+  id     String @id @default(cuid())
   userId String @unique
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  telegramBotToken String?
-  telegramChatId String?
-  telegramParseMode String? @default("HTML")
+  telegramBotToken       String?
+  telegramChatId         String?
+  telegramParseMode      String? @default("HTML")
   telegramDisablePreview Boolean @default(false)
-  telegramPinAfterSend Boolean @default(false)
+  telegramPinAfterSend   Boolean @default(false)
   telegramDefaultMessage String? @default("")
-  telegramSignature String? @default("")
+  telegramSignature      String? @default("")
 
-  whatsappGroupName String? @default("")
-  whatsappInviteLink String? @default("")
-  whatsappDefaultMessage String? @default("")
-  whatsappFooterCta String? @default("")
+  whatsappGroupName         String? @default("")
+  whatsappInviteLink        String? @default("")
+  whatsappDefaultMessage    String? @default("")
+  whatsappFooterCta         String? @default("")
   whatsappIncludeInviteLink Boolean @default(false)
-  whatsappShortenText Boolean @default(false)
-  
+  whatsappShortenText       Boolean @default(false)
+
   // WhatsApp - cada usuário conecta a própria API
-  whatsappNumber String? // Número conectado
-  whatsappGroupId String? // ID do grupo escolhido
+  whatsappNumber     String? // Número conectado
+  whatsappGroupId    String? // ID do grupo escolhido
   whatsappInstanceId String?
-  whatsappToken String?
+  whatsappToken      String?
 
   // Afiliados
-  aliexpressAppKey String?
-  aliexpressSecret String?
+  aliexpressAppKey     String?
+  aliexpressSecret     String?
   aliexpressTrackingId String?
 
-  amazonAccessKey String?
-  amazonSecretKey String?
+  amazonAccessKey    String?
+  amazonSecretKey    String?
   amazonAssociateTag String?
 
   shopeeAffiliateId String?
-  shopeeAppKey String?
+  shopeeAppKey      String?
 
   mlAffiliateLink String?
-  mlCode String?
+  mlCode          String?
 
   sheinAffiliateCode String?
-  sheinTrackingId String?
+  sheinTrackingId    String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model PostLog {
-  id String @id @default(cuid())
+  id     String @id @default(cuid())
   userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   status String // success | error | skipped
   detail String? // Mensagem do log
 
-  groupId String?
-  groupName String?
-  linkId String?
-  linkTitle String?
+  groupId        String?
+  groupName      String?
+  linkId         String?
+  linkTitle      String?
   telegramChatId String?
 
   createdAt DateTime @default(now()) // <- ADICIONA ESSA LINHA
