@@ -15,6 +15,7 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String? // ← ADICIONA ESSA LINHA
+  plan          String    @default("FREE")
   accounts      Account[]
   sessions      Session[]
 
@@ -22,8 +23,7 @@ model User {
   settings         Settings?
   telegramPosts    TelegramPost[]
   telegramChannels TelegramChannel[]
-
-  plan String @default("FREE") // ← ADICIONA ESSA LINHA
+  whatsappGroups   WhatsappGroup[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -46,12 +46,32 @@ model TelegramChannel {
   id        String   @id @default(cuid())
   userId    String
   chatId    String
-  name      String?
+  name      String
+  isActive  Boolean  @default(true)
+  interval  Int? // minutos entre posts
+  random    Boolean  @default(false)
+  products  Int      @default(0)
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, chatId])
+}
+
+model WhatsappGroup {
+  id        String   @id @default(cuid())
+  userId    String
+  groupId   String // termina com @g.us
+  name      String
+  isActive  Boolean  @default(true)
+  interval  Int?
+  random    Boolean  @default(false)
+  products  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
 }
 
 model Account {
