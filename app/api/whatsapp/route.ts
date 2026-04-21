@@ -21,7 +21,7 @@ export async function GET() {
     })
 
     return NextResponse.json({ settings: settings || {} })
-  } catch (e: any) {
+  } catch (e) {
     return NextResponse.json({ error: "Erro ao buscar dados" }, { status: 500 })
   }
 }
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
     })
 
     return NextResponse.json({ success: true })
-  } catch (e: any) {
-    return NextResponse.json({ error: "Erro ao salvar no banco" }, { status: 500 })
+  } catch (e) {
+    return NextResponse.json({ error: "Erro ao salvar" }, { status: 500 })
   }
 }

@@ -135,7 +135,6 @@ model Settings {
   // WhatsApp - cada usuário conecta a própria API
   whatsappNumber String? // Número conectado
   whatsappGroupId String? // ID do grupo escolhido
-  whatsappSessionPath String? // Caminho da sessão
   whatsappInstanceId String?
   whatsappToken String?
 
