@@ -70,7 +70,7 @@ export async function POST(req: Request) {
     if (!groupId.endsWith("@g.us")) {
       return NextResponse.json({ error: "ID do grupo inválido" }, { status: 400 })
     }
-    const group = await prisma.WhatsappGroup.create({
+    const group = await prisma.whatsappGroup.create({
       data: {
         userId: session.user.id,
         name,
