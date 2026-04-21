@@ -1,12 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useSession } from "next-auth/react"
+import { toast, Toaster } from "sonner"
 import { Send, Bot, CheckCircle2, AlertCircle, ExternalLink, Copy, Check } from "lucide-react"
 
 export default function ConfigTelegramPage() {
+  const { data: session } = useSession()
   const [botToken, setBotToken] = useState("")
   const [chatId, setChatId] = useState("")
   const [isConnected, setIsConnected] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
   const [isTesting, setIsTesting] = useState(false)
   const [copied, setCopied] = useState(false)
 
@@ -14,19 +18,78 @@ export default function ConfigTelegramPage() {
     ? `${window.location.origin}/api/telegram/webhook`
     : "https://seusite.com/api/telegram/webhook"
 
+  useEffect(() => {
+    if (session) loadSettings()
+  }, [session])
+
+  async function loadSettings() {
+    try {
+      const res = await fetch("/api/telegram")
+      if (!res.ok) return
+      const data = await res.json()
+      const token = data.settings?.telegramBotToken || ""
+      const id = data.settings?.telegramChatId || ""
+      setBotToken(token)
+      setChatId(id)
+      setIsConnected(!!token && !!id)
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
   async function salvarConfig() {
-    // Aqui você chama sua API pra salvar o token
-    // await fetch("/api/telegram/save", { method: "POST", body: JSON.stringify({ botToken, chatId }) })
-    setIsConnected(true)
+    if (!botToken) {
+      toast.error("Preencha o Bot Token")
+      return
+    }
+
+    setIsSaving(true)
+    try {
+      const res = await fetch("/api/telegram", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ telegramBotToken: botToken, telegramChatId: chatId }),
+      })
+
+      const result = await res.json()
+      if (!res.ok) throw new Error(result.error)
+
+      setIsConnected(true)
+      toast.success("Configurações do Telegram salvas!")
+    } catch (e: any) {
+      toast.error(e.message)
+      setIsConnected(false)
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   async function testarConexao() {
+    if (!botToken || !chatId) {
+      toast.error("Salve Token e Chat ID primeiro")
+      return
+    }
+
     setIsTesting(true)
-    // await fetch("/api/telegram/test", { method: "POST" })
-    setTimeout(() => {
+    try {
+      const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: "✅ Bot conectado com sucesso no Posta Links Auto!",
+        }),
+      })
+
+      const data = await res.json()
+      if (!data.ok) throw new Error(data.description || "Erro ao enviar mensagem")
+
+      toast.success("Mensagem de teste enviada! Confere no Telegram.")
+    } catch (e: any) {
+      toast.error(`Erro ao testar: ${e.message}`)
+    } finally {
       setIsTesting(false)
-      alert("Mensagem de teste enviada com sucesso!")
-    }, 1500)
+    }
   }
 
   function copiarWebhook() {
@@ -37,7 +100,8 @@ export default function ConfigTelegramPage() {
 
   return (
     <div className="space-y-6">
-      {/* Título */}
+      <Toaster richColors />
+      
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Configuração Telegram</h1>
         <p className="mt-1 text-sm text-gray-600">
@@ -45,7 +109,6 @@ export default function ConfigTelegramPage() {
         </p>
       </div>
 
-      {/* Cards de Status */}
       <div className="grid gap-4 md:grid-cols-3">
         <div className="rounded-lg border border-gray-200 bg-white p-5">
           <div className="flex items-center justify-between">
@@ -90,7 +153,6 @@ export default function ConfigTelegramPage() {
         </div>
       </div>
 
-      {/* Passo a Passo */}
       <div className="rounded-lg border border-gray-200 bg-white p-6">
         <h2 className="mb-4 text-lg font-bold text-gray-900">Como criar seu Bot do Telegram</h2>
         
@@ -122,7 +184,7 @@ export default function ConfigTelegramPage() {
             <div>
               <p className="font-semibold text-gray-900">Envie /newbot e siga as instruções</p>
               <p className="mt-1 text-sm text-gray-600">
-                Escolha um nome para seu bot (ex: Posta Links Auto Bot) e um username terminado em "bot" (ex: posta_links_auto_bot).
+                Escolha um nome para seu bot e um username terminado em "bot".
               </p>
             </div>
           </div>
@@ -153,7 +215,6 @@ export default function ConfigTelegramPage() {
         </div>
       </div>
 
-      {/* Formulário de Configuração */}
       <div className="rounded-lg border border-gray-200 bg-white p-6">
         <h2 className="mb-4 text-lg font-bold text-gray-900">Configurar Bot</h2>
 
@@ -176,7 +237,7 @@ export default function ConfigTelegramPage() {
 
           <div>
             <label className="mb-1 block text-xs font-medium uppercase text-gray-700">
-              CHAT ID (Opcional)
+              CHAT ID
             </label>
             <input
               type="text"
@@ -186,7 +247,7 @@ export default function ConfigTelegramPage() {
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
             />
             <p className="mt-1 text-xs text-gray-500">
-              ID do canal/grupo principal. Deixe vazio para configurar depois em Canais/Grupos
+              ID do canal/grupo principal. Use @userinfobot pra descobrir
             </p>
           </div>
 
@@ -202,6 +263,7 @@ export default function ConfigTelegramPage() {
                 className="flex-1 rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-600"
               />
               <button
+                type="button"
                 onClick={copiarWebhook}
                 className="flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
@@ -214,29 +276,17 @@ export default function ConfigTelegramPage() {
             </p>
           </div>
 
-          <div>
-            <label className="mb-1 block text-xs font-medium uppercase text-gray-700">
-              MENSAGEM PADRÃO DE OFERTA
-            </label>
-            <textarea
-              defaultValue="🔥 {{titulo}}\n\n💰 De R$ {{preco_antigo}} por R$ {{preco}}\n\n👉 {{link}}\n\n⏰ Oferta por tempo limitado!"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-              rows={5}
-            />
-            <p className="mt-1 text-xs text-gray-500">
-              Use {"{{titulo}}"}, {"{{preco}}"}, {"{{preco_antigo}}"}, {"{{link}}"} para dados dinâmicos
-            </p>
-          </div>
-
           <div className="flex gap-3 pt-2">
             <button
+              type="button"
               onClick={salvarConfig}
-              disabled={!botToken}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+              disabled={!botToken || isSaving}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Salvar Configuração
+              {isSaving ? "Salvando..." : "Salvar Configuração"}
             </button>
             <button
+              type="button"
               onClick={testarConexao}
               disabled={!isConnected || isTesting}
               className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
@@ -247,7 +297,6 @@ export default function ConfigTelegramPage() {
         </div>
       </div>
 
-      {/* Status de Conexão */}
       {isConnected && (
         <div className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4">
           <CheckCircle2 className="h-6 w-6 text-green-600" />
@@ -260,7 +309,6 @@ export default function ConfigTelegramPage() {
         </div>
       )}
 
-      {/* Aviso */}
       <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-900">
         <div className="flex gap-3">
           <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0" />
