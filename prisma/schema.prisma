@@ -162,17 +162,20 @@ model Settings {
 
 model PostLog {
   id String @id @default(cuid())
-  status String
-  detail String @default("")
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  status String // success | error | skipped
+  detail String? // Mensagem do log
 
   groupId String?
   groupName String?
   linkId String?
   linkTitle String?
-
   telegramChatId String?
-  postedAt DateTime @default(now())
 
-  userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) // <- ADICIONA ESSA LINHA
+
+  @@index([userId])
+  @@index([createdAt])
 }
