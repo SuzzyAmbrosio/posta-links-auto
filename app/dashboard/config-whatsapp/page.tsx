@@ -14,9 +14,13 @@ export default function ConfigWhatsappPage() {
   const [isConnected, setIsConnected] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isTesting, setIsTesting] = useState(false)
+  const [enviosHoje, setEnviosHoje] = useState(0)
 
   useEffect(() => {
-    if (session) loadSettings()
+    if (session) {
+      loadSettings()
+      loadStats()
+    }
   }, [session])
 
   async function loadSettings() {
@@ -39,9 +43,30 @@ export default function ConfigWhatsappPage() {
     }
   }
 
+  async function loadStats() {
+    try {
+      const res = await fetch("/api/whatsapp/stats")
+      if (!res.ok) return
+      const data = await res.json()
+      setEnviosHoje(data.enviosHoje || 0)
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  function validarGroupId(id: string) {
+    // Grupo termina com @g.us
+    return id.trim().endsWith("@g.us") || id.trim().includes("-")
+  }
+
   async function salvarConfig() {
     if (!whatsappNumber ||!whatsappInstanceId ||!whatsappToken ||!whatsappGroupId) {
       toast.error("Preencha todos os campos")
+      return
+    }
+
+    if (!validarGroupId(whatsappGroupId)) {
+      toast.error("ID do grupo inválido. Deve terminar com @g.us")
       return
     }
 
@@ -51,10 +76,10 @@ export default function ConfigWhatsappPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          whatsappNumber,
-          whatsappInstanceId,
-          whatsappToken,
-          whatsappGroupId,
+          whatsappNumber: whatsappNumber.trim(),
+          whatsappInstanceId: whatsappInstanceId.trim(),
+          whatsappToken: whatsappToken.trim(),
+          whatsappGroupId: whatsappGroupId.trim(),
         }),
       })
 
@@ -95,6 +120,7 @@ export default function ConfigWhatsappPage() {
       if (!res.ok || data?.error) throw new Error(data?.message || "Erro ao enviar")
 
       toast.success("Mensagem de teste enviada no grupo!")
+      loadStats()
     } catch (e: any) {
       toast.error(`Erro: ${e.message}. Confere Instance ID e Token.`)
     } finally {
@@ -138,7 +164,7 @@ export default function ConfigWhatsappPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Envios Hoje</p>
-              <p className="mt-1 text-2xl font-bold text-gray-900">47</p>
+              <p className="mt-1 text-2xl font-bold text-gray-900">{enviosHoje}</p>
             </div>
             <Smartphone className="h-10 w-10 text-green-600" />
           </div>

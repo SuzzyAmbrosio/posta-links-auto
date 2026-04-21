@@ -17,3 +17,7 @@ build
 
 # misc
 .DS_Store
+
+# WhatsApp Sessions
+sessions/
+*.session.json

@@ -22,7 +22,6 @@ export async function GET() {
 
     return NextResponse.json({ settings: settings || {} })
   } catch (e: any) {
-    console.error("GET /api/whatsapp error:", e)
     return NextResponse.json({ error: "Erro ao buscar dados" }, { status: 500 })
   }
 }
@@ -54,7 +53,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true })
   } catch (e: any) {
-    console.error("POST /api/whatsapp error:", e)
     return NextResponse.json({ error: "Erro ao salvar no banco" }, { status: 500 })
   }
 }

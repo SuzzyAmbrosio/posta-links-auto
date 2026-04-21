@@ -84,6 +84,10 @@ function pickLink<T extends { clicks: number }>(
   return links[0];
 }
 
+async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function GET() {
   try {
     const now = new Date();
@@ -155,7 +159,7 @@ export async function GET() {
           settings?.telegramChatId?.trim() ||
           "";
 
-        // WHATSAPP - campos novos
+        // WHATSAPP - usa credenciais do usuário
         const whatsappInstanceId = settings?.whatsappInstanceId?.trim() || "";
         const whatsappToken = settings?.whatsappToken?.trim() || "";
         const whatsappGroupId = settings?.whatsappGroupId?.trim() || "";
@@ -163,7 +167,7 @@ export async function GET() {
         const parseMode = settings?.telegramParseMode?.trim() || "HTML";
         const disablePreview = Boolean(settings?.telegramDisablePreview);
 
-        if (!botToken && (!whatsappInstanceId || !whatsappToken)) {
+        if (!botToken && (!whatsappInstanceId || !whatsappToken || !whatsappGroupId)) {
           results.push({
             groupId: group.id,
             groupName: group.name,
@@ -278,12 +282,12 @@ export async function GET() {
             } else {
               errors.push(`Telegram: ${telegramData?.description || "Erro"}`);
             }
-          } catch {
-            errors.push("Telegram: Falha na requisição");
+          } catch (e: any) {
+            errors.push(`Telegram: ${e.message || "Falha na requisição"}`);
           }
         }
 
-        // DISPARA WHATSAPP - usa InstanceId + Token do usuário
+        // DISPARA WHATSAPP - usa API do usuário
         if (whatsappInstanceId && whatsappToken && whatsappGroupId) {
           const whatsappMessage = buildWhatsappMessage({
             title: selectedLink.title,
@@ -294,6 +298,9 @@ export async function GET() {
           });
 
           try {
+            // Delay pra evitar ban - 3s entre posts
+            await sleep(3000);
+
             const whatsappRes = await fetch(
               `https://api.z-api.io/instances/${whatsappInstanceId}/token/${whatsappToken}/send-text`,
               {
@@ -310,10 +317,10 @@ export async function GET() {
             if (whatsappRes.ok && !whatsappData?.error) {
               whatsappSuccess = true;
             } else {
-              errors.push(`WhatsApp: ${whatsappData?.message || "Erro"}`);
+              errors.push(`WhatsApp: ${whatsappData?.message || whatsappData?.error || "Erro"}`);
             }
-          } catch {
-            errors.push("WhatsApp: Falha na requisição");
+          } catch (e: any) {
+            errors.push(`WhatsApp: ${e.message || "Falha na requisição"}`);
           }
         }
 
@@ -369,19 +376,19 @@ export async function GET() {
             detail,
           });
         }
-      } catch {
+      } catch (e: any) {
         results.push({
           groupId: group.id,
           groupName: group.name,
           status: "error",
-          detail: "Falha ao processar grupo.",
+          detail: `Falha ao processar grupo: ${e.message}`,
         });
 
         await prisma.postLog.create({
           data: {
             userId: group.userId,
             status: "error",
-            detail: "Falha ao processar grupo.",
+            detail: `Falha ao processar grupo: ${e.message}`,
             groupId: group.id,
             groupName: group.name,
           },
@@ -394,9 +401,9 @@ export async function GET() {
       processed: results.length,
       results,
     });
-  } catch {
+  } catch (e: any) {
     return Response.json(
-      { error: "Erro interno no cron." },
+      { error: `Erro interno no cron: ${e.message}` },
       { status: 500 }
     );
   }

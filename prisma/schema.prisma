@@ -133,10 +133,11 @@ model Settings {
   whatsappShortenText Boolean @default(false)
   
   // WhatsApp - cada usuário conecta a própria API
-  whatsappNumber String? // Número que envia
-  whatsappInstanceId String? // ID da instância Z-API/Evolution
-  whatsappToken String? // Token da instância
-  whatsappGroupId String? // ID do grupo pra postar
+  whatsappNumber String? // Número conectado
+  whatsappGroupId String? // ID do grupo escolhido
+  whatsappSessionPath String? // Caminho da sessão
+  whatsappInstanceId String?
+  whatsappToken String?
 
   // Afiliados
   aliexpressAppKey String?
