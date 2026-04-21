@@ -155,7 +155,7 @@ export async function GET() {
           settings?.telegramChatId?.trim() ||
           "";
 
-        // WHATSAPP
+        // WHATSAPP - campos novos
         const whatsappInstanceId = settings?.whatsappInstanceId?.trim() || "";
         const whatsappToken = settings?.whatsappToken?.trim() || "";
         const whatsappGroupId = settings?.whatsappGroupId?.trim() || "";
@@ -163,7 +163,7 @@ export async function GET() {
         const parseMode = settings?.telegramParseMode?.trim() || "HTML";
         const disablePreview = Boolean(settings?.telegramDisablePreview);
 
-        if (!botToken && !whatsappApiKey) {
+        if (!botToken && (!whatsappInstanceId || !whatsappToken)) {
           results.push({
             groupId: group.id,
             groupName: group.name,
@@ -283,7 +283,7 @@ export async function GET() {
           }
         }
 
-        // DISPARA WHATSAPP
+        // DISPARA WHATSAPP - usa InstanceId + Token do usuário
         if (whatsappInstanceId && whatsappToken && whatsappGroupId) {
           const whatsappMessage = buildWhatsappMessage({
             title: selectedLink.title,
@@ -307,7 +307,7 @@ export async function GET() {
             );
 
             const whatsappData = await whatsappRes.json();
-            if (whatsappRes.ok &&!whatsappData?.error) {
+            if (whatsappRes.ok && !whatsappData?.error) {
               whatsappSuccess = true;
             } else {
               errors.push(`WhatsApp: ${whatsappData?.message || "Erro"}`);
