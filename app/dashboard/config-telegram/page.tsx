@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
 import { toast, Toaster } from "sonner"
-import { Send, Bot, CheckCircle2, AlertCircle, ExternalLink, Copy, Check } from "lucide-react"
+import { Send, Bot, CheckCircle2, AlertCircle, ExternalLink, Copy, Check, Unlink } from "lucide-react"
 
 export default function ConfigTelegramPage() {
   const { data: session } = useSession()
@@ -12,6 +12,7 @@ export default function ConfigTelegramPage() {
   const [isConnected, setIsConnected] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isTesting, setIsTesting] = useState(false)
+  const [isDisconnecting, setIsDisconnecting] = useState(false)
   const [copied, setCopied] = useState(false)
 
   const webhookUrl = typeof window !== "undefined" 
@@ -31,7 +32,7 @@ export default function ConfigTelegramPage() {
       const id = data.settings?.telegramChatId || ""
       setBotToken(token)
       setChatId(id)
-      setIsConnected(!!token && !!id)
+      setIsConnected(!!token?.trim() && !!id?.trim())
     } catch (e) {
       console.error(e)
     }
@@ -61,6 +62,26 @@ export default function ConfigTelegramPage() {
       setIsConnected(false)
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  async function desconectarTelegram() {
+    setIsDisconnecting(true)
+    try {
+      const res = await fetch("/api/telegram/disconnect", { method: "POST" })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error)
+      }
+
+      setBotToken("")
+      setChatId("")
+      setIsConnected(false)
+      toast.success("Telegram desconectado com sucesso!")
+    } catch (e: any) {
+      toast.error(e.message || "Erro ao desconectar")
+    } finally {
+      setIsDisconnecting(false)
     }
   }
 
@@ -102,11 +123,23 @@ export default function ConfigTelegramPage() {
     <div className="space-y-6">
       <Toaster richColors />
       
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Configuração Telegram</h1>
-        <p className="mt-1 text-sm text-gray-600">
-          Conecte seu bot do Telegram ao Posta Links Auto para enviar ofertas automaticamente para seus canais e grupos.
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Configuração Telegram</h1>
+          <p className="mt-1 text-sm text-gray-600">
+            Conecte seu bot do Telegram ao Posta Links Auto para enviar ofertas automaticamente para seus canais e grupos.
+          </p>
+        </div>
+        {isConnected && (
+          <button
+            onClick={desconectarTelegram}
+            disabled={isDisconnecting}
+            className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Unlink size={16} />
+            {isDisconnecting ? "Desconectando..." : "Desconectar"}
+          </button>
+        )}
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
