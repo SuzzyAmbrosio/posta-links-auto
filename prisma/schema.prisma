@@ -168,6 +168,7 @@ model Settings {
   telegramPinAfterSend   Boolean @default(false)
   telegramDefaultMessage String? @default("")
   telegramSignature      String? @default("")
+  telegramConnected      Boolean @default(false)
 
   whatsappGroupName         String? @default("")
   whatsappInviteLink        String? @default("")
@@ -175,6 +176,7 @@ model Settings {
   whatsappFooterCta         String? @default("")
   whatsappIncludeInviteLink Boolean @default(false)
   whatsappShortenText       Boolean @default(false)
+  whatsappConnected         Boolean @default(false)
 
   // WhatsApp - cada usuário conecta a própria API
   whatsappNumber     String? // Número conectado
