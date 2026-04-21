@@ -1,4 +1,8 @@
 import Link from "next/link";
+import ProgramasAfiliados from "@/components/ProgramasAfiliados"
+import FAQLanding from "@/components/FAQLanding"
+import CTAFinal from "@/components/CTAFinal"
+import Footer from "@/components/Footer"
 
 export default function HomePage() {
   return (
@@ -94,6 +98,15 @@ export default function HomePage() {
           </div>
         </section>
       </section>
+
+      {/* Seções da Landing */}
+      <ProgramasAfiliados />
+      
+      <FAQLanding />
+      
+      <CTAFinal />
+      
+      <Footer />
     </main>
   );
 }
