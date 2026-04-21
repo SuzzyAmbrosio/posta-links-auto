@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
 import { toast, Toaster } from "sonner"
-import { Send, Bot, CheckCircle2, AlertCircle, ExternalLink, Copy, Check, Unlink } from "lucide-react"
+import { Send, Bot, CheckCircle2, AlertCircle, ExternalLink, Copy, Check, X } from "lucide-react"
 
 export default function ConfigTelegramPage() {
   const { data: session } = useSession()
@@ -66,6 +66,8 @@ export default function ConfigTelegramPage() {
   }
 
   async function desconectarTelegram() {
+    if (!confirm("Tem certeza que quer desconectar o Telegram? Os posts automáticos vão parar.")) return
+
     setIsDisconnecting(true)
     try {
       const res = await fetch("/api/telegram/disconnect", { method: "POST" })
@@ -123,23 +125,11 @@ export default function ConfigTelegramPage() {
     <div className="space-y-6">
       <Toaster richColors />
       
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Configuração Telegram</h1>
-          <p className="mt-1 text-sm text-gray-600">
-            Conecte seu bot do Telegram ao Posta Links Auto para enviar ofertas automaticamente para seus canais e grupos.
-          </p>
-        </div>
-        {isConnected && (
-          <button
-            onClick={desconectarTelegram}
-            disabled={isDisconnecting}
-            className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <Unlink size={16} />
-            {isDisconnecting ? "Desconectando..." : "Desconectar"}
-          </button>
-        )}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Configuração Telegram</h1>
+        <p className="mt-1 text-sm text-gray-600">
+          Conecte seu bot do Telegram ao Posta Links Auto para enviar ofertas automaticamente para seus canais e grupos.
+        </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -261,7 +251,8 @@ export default function ConfigTelegramPage() {
               value={botToken}
               onChange={(e) => setBotToken(e.target.value)}
               placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+              disabled={isConnected}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none disabled:bg-gray-100"
             />
             <p className="mt-1 text-xs text-gray-500">
               Cole aqui o token que o @BotFather te enviou
@@ -277,7 +268,8 @@ export default function ConfigTelegramPage() {
               value={chatId}
               onChange={(e) => setChatId(e.target.value)}
               placeholder="-1001234567890"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+              disabled={isConnected}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none disabled:bg-gray-100"
             />
             <p className="mt-1 text-xs text-gray-500">
               ID do canal/grupo principal. Use @userinfobot pra descobrir
@@ -310,22 +302,36 @@ export default function ConfigTelegramPage() {
           </div>
 
           <div className="flex gap-3 pt-2">
-            <button
-              type="button"
-              onClick={salvarConfig}
-              disabled={!botToken || isSaving}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {isSaving ? "Salvando..." : "Salvar Configuração"}
-            </button>
-            <button
-              type="button"
-              onClick={testarConexao}
-              disabled={!isConnected || isTesting}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {isTesting ? "Enviando..." : "Testar Envio"}
-            </button>
+            {!isConnected && (
+              <button
+                type="button"
+                onClick={salvarConfig}
+                disabled={!botToken || isSaving}
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSaving ? "Salvando..." : "Salvar Configuração"}
+              </button>
+            )}
+            {isConnected && (
+              <>
+                <button
+                  type="button"
+                  onClick={testarConexao}
+                  disabled={isTesting}
+                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isTesting ? "Enviando..." : "Testar Envio"}
+                </button>
+                <button
+                  onClick={desconectarTelegram}
+                  disabled={isDisconnecting}
+                  className="flex items-center gap-1 rounded-lg border border-red-300 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
+                >
+                  <X className="h-4 w-4" />
+                  {isDisconnecting ? "Desconectando..." : "Desconectar"}
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

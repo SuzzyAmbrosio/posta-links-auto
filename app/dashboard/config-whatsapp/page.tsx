@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
 import { toast, Toaster } from "sonner"
-import { MessageCircle, CheckCircle2, AlertCircle, Smartphone, Users, X } from "lucide-react"
+import { MessageCircle, CheckCircle2, AlertCircle, Smartphone, X, ExternalLink } from "lucide-react"
 
 export default function ConfigWhatsappPage() {
   const { data: session } = useSession()
@@ -16,13 +16,6 @@ export default function ConfigWhatsappPage() {
   const [isTesting, setIsTesting] = useState(false)
   const [isDisconnecting, setIsDisconnecting] = useState(false)
   const [enviosHoje, setEnviosHoje] = useState(0)
-
-  // Telegram
-  const [telegramBotToken, setTelegramBotToken] = useState("")
-  const [telegramChatId, setTelegramChatId] = useState("")
-  const [telegramConnected, setTelegramConnected] = useState(false)
-  const [isSavingTelegram, setIsSavingTelegram] = useState(false)
-  const [isDisconnectingTelegram, setIsDisconnectingTelegram] = useState(false)
 
   useEffect(() => {
     if (session) {
@@ -43,13 +36,8 @@ export default function ConfigWhatsappPage() {
       setWhatsappToken(s.whatsappToken || "")
       setWhatsappGroupId(s.whatsappGroupId || "")
 
-      // Checa se todos os campos estão preenchidos pra marcar como conectado
       const whatsappConectado =!!(s.whatsappNumber?.trim() && s.whatsappInstanceId?.trim() && s.whatsappToken?.trim() && s.whatsappGroupId?.trim())
       setIsConnected(whatsappConectado)
-
-      setTelegramBotToken(s.telegramBotToken || "")
-      setTelegramChatId(s.telegramChatId || "")
-      setTelegramConnected(!!(s.telegramBotToken?.trim() && s.telegramChatId?.trim()))
     } catch (e) {
       console.error(e)
     }
@@ -99,7 +87,7 @@ export default function ConfigWhatsappPage() {
 
       setIsConnected(true)
       toast.success("WhatsApp configurado com sua API!")
-      loadSettings() // Recarrega pra garantir
+      loadSettings()
     } catch (e: any) {
       toast.error(e.message)
       setIsConnected(false)
@@ -127,56 +115,6 @@ export default function ConfigWhatsappPage() {
       toast.error(e.message)
     } finally {
       setIsDisconnecting(false)
-    }
-  }
-
-  async function salvarTelegram() {
-    if (!telegramBotToken ||!telegramChatId) {
-      toast.error("Preencha Token e Chat ID")
-      return
-    }
-
-    setIsSavingTelegram(true)
-    try {
-      const res = await fetch("/api/telegram", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          telegramBotToken: telegramBotToken.trim(),
-          telegramChatId: telegramChatId.trim(),
-        }),
-      })
-
-      const result = await res.json()
-      if (!res.ok) throw new Error(result.error)
-
-      setTelegramConnected(true)
-      toast.success("Telegram configurado!")
-      loadSettings()
-    } catch (e: any) {
-      toast.error(e.message)
-    } finally {
-      setIsSavingTelegram(false)
-    }
-  }
-
-  async function desconectarTelegram() {
-    if (!confirm("Tem certeza que quer desconectar o Telegram? Os posts automáticos vão parar.")) return
-
-    setIsDisconnectingTelegram(true)
-    try {
-      const res = await fetch("/api/telegram/disconnect", { method: "POST" })
-      const result = await res.json()
-      if (!res.ok) throw new Error(result.error)
-
-      setTelegramBotToken("")
-      setTelegramChatId("")
-      setTelegramConnected(false)
-      toast.success("Telegram desconectado")
-    } catch (e: any) {
-      toast.error(e.message)
-    } finally {
-      setIsDisconnectingTelegram(false)
     }
   }
 
@@ -217,13 +155,13 @@ export default function ConfigWhatsappPage() {
       <Toaster richColors />
 
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Configuração de Canais</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Configuração WhatsApp</h1>
         <p className="mt-1 text-sm text-gray-600">
-          Conecte WhatsApp e Telegram para disparar ofertas automaticamente.
+          Conecte sua API do WhatsApp para disparar ofertas automaticamente nos seus grupos.
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         <div className="rounded-lg border border-gray-200 bg-white p-5">
           <div className="flex items-center justify-between">
             <div>
@@ -254,28 +192,73 @@ export default function ConfigWhatsappPage() {
           </div>
           <p className="mt-2 text-xs text-gray-500">Via sua API</p>
         </div>
+      </div>
 
-        <div className="rounded-lg border border-gray-200 bg-white p-5">
-          <div className="flex items-center justify-between">
+      <div className="rounded-lg border border-gray-200 bg-white p-6">
+        <h2 className="mb-4 text-lg font-bold text-gray-900">Como conectar sua Z-API</h2>
+
+        <div className="space-y-4">
+          <div className="flex gap-4">
+            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-600 text-sm font-bold text-white">
+              1
+            </div>
             <div>
-              <p className="text-sm text-gray-600">Status Telegram</p>
-              <p className="mt-1 text-2xl font-bold">
-                {telegramConnected? (
-                  <span className="text-green-600">Ativo</span>
-                ) : (
-                  <span className="text-red-600">Inativo</span>
-                )}
+              <p className="font-semibold text-gray-900">Crie uma conta na Z-API</p>
+              <p className="mt-1 text-sm text-gray-600">
+                Acesse z-api.io e crie sua instância. Você ganha 7 dias grátis pra testar.
+              </p>
+              <a
+                href="https://z-api.io"
+                target="_blank"
+                rel="noreferrer"
+                className="mt-2 inline-flex items-center gap-1 text-sm text-green-600 hover:underline"
+              >
+                Abrir Z-API <ExternalLink size={14} />
+              </a>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-600 text-sm font-bold text-white">
+              2
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">Conecte seu WhatsApp escaneando o QR Code</p>
+              <p className="mt-1 text-sm text-gray-600">
+                Use um número secundário. Se tomar ban, você perde o número.
               </p>
             </div>
-            <Users className="h-10 w-10 text-blue-600" />
+          </div>
+
+          <div className="flex gap-4">
+            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-600 text-sm font-bold text-white">
+              3
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">Copie Instance ID e Token</p>
+              <p className="mt-1 text-sm text-gray-600">
+                No painel da Z-API você encontra o Instance ID e Client-Token da sua instância.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-600 text-sm font-bold text-white">
+              4
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">Pegue o ID do grupo</p>
+              <p className="mt-1 text-sm text-gray-600">
+                Adicione o bot @getidsbot no seu grupo do WhatsApp. Ele vai enviar o ID que termina com <code className="rounded bg-gray-100 px-1">@g.us</code>
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* WHATSAPP */}
       <div className="rounded-lg border border-gray-200 bg-white p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-gray-900">WhatsApp via Z-API</h2>
+          <h2 className="text-lg font-bold text-gray-900">Credenciais da API</h2>
           {isConnected && (
             <button
               onClick={desconectarWhatsapp}
@@ -301,6 +284,9 @@ export default function ConfigWhatsappPage() {
               disabled={isConnected}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none disabled:bg-gray-100"
             />
+            <p className="mt-1 text-xs text-gray-500">
+              Número conectado na Z-API, com DDI+DDD sem símbolos
+            </p>
           </div>
 
           <div>
@@ -315,6 +301,9 @@ export default function ConfigWhatsappPage() {
               disabled={isConnected}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none disabled:bg-gray-100"
             />
+            <p className="mt-1 text-xs text-gray-500">
+              Encontrado no painel da Z-API
+            </p>
           </div>
 
           <div>
@@ -329,6 +318,9 @@ export default function ConfigWhatsappPage() {
               disabled={isConnected}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none disabled:bg-gray-100"
             />
+            <p className="mt-1 text-xs text-gray-500">
+              Client-Token da sua instância na Z-API
+            </p>
           </div>
 
           <div>
@@ -343,6 +335,9 @@ export default function ConfigWhatsappPage() {
               disabled={isConnected}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none disabled:bg-gray-100"
             />
+            <p className="mt-1 text-xs text-gray-500">
+              Adicione @getidsbot no grupo pra pegar o ID
+            </p>
           </div>
 
           <div className="flex gap-3 pt-2">
@@ -364,66 +359,6 @@ export default function ConfigWhatsappPage() {
             >
               {isTesting? "Enviando..." : "Testar no Grupo"}
             </button>
-          </div>
-        </div>
-      </div>
-
-      {/* TELEGRAM */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-gray-900">Telegram Bot</h2>
-          {telegramConnected && (
-            <button
-              onClick={desconectarTelegram}
-              disabled={isDisconnectingTelegram}
-              className="flex items-center gap-1 rounded-lg border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
-            >
-              <X className="h-4 w-4" />
-              {isDisconnectingTelegram? "Desconectando..." : "Desconectar"}
-            </button>
-          )}
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <label className="mb-1 block text-xs font-medium uppercase text-gray-700">
-              BOT TOKEN
-            </label>
-            <input
-              type="password"
-              value={telegramBotToken}
-              onChange={(e) => setTelegramBotToken(e.target.value)}
-              placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
-              disabled={telegramConnected}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none disabled:bg-gray-100"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-xs font-medium uppercase text-gray-700">
-              CHAT ID
-            </label>
-            <input
-              type="text"
-              value={telegramChatId}
-              onChange={(e) => setTelegramChatId(e.target.value)}
-              placeholder="-1001234567890"
-              disabled={telegramConnected}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none disabled:bg-gray-100"
-            />
-          </div>
-
-          <div className="flex gap-3 pt-2">
-            {!telegramConnected && (
-              <button
-                type="button"
-                onClick={salvarTelegram}
-                disabled={!telegramBotToken ||!telegramChatId || isSavingTelegram}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {isSavingTelegram? "Salvando..." : "Salvar Configuração"}
-              </button>
-            )}
           </div>
         </div>
       </div>
