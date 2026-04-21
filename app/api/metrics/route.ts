@@ -45,7 +45,7 @@ export async function GET() {
     const successCount = logs.filter((log) => log.status === "success").length;
     const errorCount = logs.filter((log) => log.status === "error").length;
     const skippedCount = logs.filter((log) => log.status === "skipped").length;
-    const lastActivity = logs[0]?.postedAt ?? null;
+    const lastActivity = logs[0]?.createdAt?? null;
 
     return Response.json({
       summary: {
