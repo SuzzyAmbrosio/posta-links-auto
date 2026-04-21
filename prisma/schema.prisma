@@ -179,3 +179,26 @@ model PostLog {
   @@index([userId])
   @@index([createdAt])
 }
+
+model TelegramPost {
+  id String @id @default(cuid())
+  userId String
+  channelId String?
+  message String
+  sent Boolean @default(true)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model TelegramChannel {
+  id String @id @default(cuid())
+  userId String
+  chatId String
+  name String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, chatId])
+}
