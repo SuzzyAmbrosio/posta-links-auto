@@ -170,7 +170,7 @@ export default function ConfigWhatsappPage() {
                 {isConnected? (
                   <span className="text-green-600">Ativo</span>
                 ) : (
-                  <span className="text-red-600">Inativo</span>
+                  <span className="text-red-600">Desconectado</span>
                 )}
               </p>
             </div>

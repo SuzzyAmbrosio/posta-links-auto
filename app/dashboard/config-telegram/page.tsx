@@ -14,13 +14,18 @@ export default function ConfigTelegramPage() {
   const [isTesting, setIsTesting] = useState(false)
   const [isDisconnecting, setIsDisconnecting] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [enviosTelegram, setEnviosTelegram] = useState(0)
+  const [canaisAtivos, setCanaisAtivos] = useState(0)
 
   const webhookUrl = typeof window !== "undefined" 
     ? `${window.location.origin}/api/telegram/webhook`
     : "https://seusite.com/api/telegram/webhook"
 
   useEffect(() => {
-    if (session) loadSettings()
+    if (session) {
+      loadSettings()
+      loadStats()
+    }
   }, [session])
 
   async function loadSettings() {
@@ -33,6 +38,18 @@ export default function ConfigTelegramPage() {
       setBotToken(token)
       setChatId(id)
       setIsConnected(!!token?.trim() && !!id?.trim())
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  async function loadStats() {
+    try {
+      const res = await fetch("/api/telegram/stats")
+      if (!res.ok) return
+      const data = await res.json()
+      setEnviosTelegram(data.envios || 0)
+      setCanaisAtivos(data.canais || 0)
     } catch (e) {
       console.error(e)
     }
@@ -57,6 +74,7 @@ export default function ConfigTelegramPage() {
 
       setIsConnected(true)
       toast.success("Configurações do Telegram salvas!")
+      loadStats()
     } catch (e: any) {
       toast.error(e.message)
       setIsConnected(false)
@@ -79,6 +97,8 @@ export default function ConfigTelegramPage() {
       setBotToken("")
       setChatId("")
       setIsConnected(false)
+      setEnviosTelegram(0)
+      setCanaisAtivos(0)
       toast.success("Telegram desconectado com sucesso!")
     } catch (e: any) {
       toast.error(e.message || "Erro ao desconectar")
@@ -108,6 +128,7 @@ export default function ConfigTelegramPage() {
       if (!data.ok) throw new Error(data.description || "Erro ao enviar mensagem")
 
       toast.success("Mensagem de teste enviada! Confere no Telegram.")
+      loadStats()
     } catch (e: any) {
       toast.error(`Erro ao testar: ${e.message}`)
     } finally {
@@ -157,7 +178,7 @@ export default function ConfigTelegramPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Mensagens Enviadas</p>
-              <p className="mt-1 text-2xl font-bold text-gray-900">3,847</p>
+              <p className="mt-1 text-2xl font-bold text-gray-900">{enviosTelegram}</p>
             </div>
             <Send className="h-10 w-10 text-blue-600" />
           </div>
@@ -168,7 +189,7 @@ export default function ConfigTelegramPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Canais Ativos</p>
-              <p className="mt-1 text-2xl font-bold text-gray-900">5</p>
+              <p className="mt-1 text-2xl font-bold text-gray-900">{canaisAtivos}</p>
             </div>
             <Bot className="h-10 w-10 text-purple-600" />
           </div>
@@ -239,7 +260,19 @@ export default function ConfigTelegramPage() {
       </div>
 
       <div className="rounded-lg border border-gray-200 bg-white p-6">
-        <h2 className="mb-4 text-lg font-bold text-gray-900">Configurar Bot</h2>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-gray-900">Configurar Bot</h2>
+          {isConnected && (
+            <button
+              onClick={desconectarTelegram}
+              disabled={isDisconnecting}
+              className="flex items-center gap-1 rounded-lg border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
+            >
+              <X className="h-4 w-4" />
+              {isDisconnecting ? "Desconectando..." : "Desconectar"}
+            </button>
+          )}
+        </div>
 
         <div className="space-y-4">
           <div>
@@ -312,26 +345,14 @@ export default function ConfigTelegramPage() {
                 {isSaving ? "Salvando..." : "Salvar Configuração"}
               </button>
             )}
-            {isConnected && (
-              <>
-                <button
-                  type="button"
-                  onClick={testarConexao}
-                  disabled={isTesting}
-                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {isTesting ? "Enviando..." : "Testar Envio"}
-                </button>
-                <button
-                  onClick={desconectarTelegram}
-                  disabled={isDisconnecting}
-                  className="flex items-center gap-1 rounded-lg border border-red-300 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
-                >
-                  <X className="h-4 w-4" />
-                  {isDisconnecting ? "Desconectando..." : "Desconectar"}
-                </button>
-              </>
-            )}
+            <button
+              type="button"
+              onClick={testarConexao}
+              disabled={!isConnected || isTesting}
+              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isTesting ? "Enviando..." : "Testar Envio"}
+            </button>
           </div>
         </div>
       </div>
