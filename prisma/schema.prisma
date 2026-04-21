@@ -100,7 +100,7 @@ model Group {
   postPriceLabel String @default("")
   postCta String @default("")
 
-  lastPostedAt DateTime?
+  lastcreatedAt DateTime?
   isActive Boolean @default(true)
 
   userId String

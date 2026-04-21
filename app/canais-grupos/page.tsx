@@ -23,7 +23,7 @@ type GroupItem = {
   intervalMinutes: number;
   randomMode: boolean;
   selectionMode?: string;
-  lastPostedAt?: string | null;
+  lastcreatedAt?: string | null;
   isActive: boolean;
 };
 
@@ -284,7 +284,7 @@ function GroupCard({
             Última postagem
           </div>
           <div className="text-[11px] text-slate-600">
-            {formatDateTime(item.lastPostedAt)}
+            {formatDateTime(item.lastcreatedAt)}
           </div>
         </div>
       </div>

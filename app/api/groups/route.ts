@@ -48,7 +48,7 @@ export async function GET() {
         intervalMinutes: group.intervalMinutes,
         randomMode: group.randomMode,
         selectionMode: group.selectionMode,
-        lastPostedAt: group.lastPostedAt,
+        lastcreatedAt: group.lastcreatedAt,
         isActive: group.isActive,
       }))
     );

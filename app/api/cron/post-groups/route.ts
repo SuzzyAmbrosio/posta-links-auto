@@ -121,8 +121,8 @@ export async function GET() {
 
     for (const group of groups) {
       try {
-        if (group.lastPostedAt) {
-          const minutes = diffMinutes(group.lastPostedAt, now);
+        if (group.lastcreatedAt) {
+          const minutes = diffMinutes(group.lastcreatedAt, now);
 
           if (minutes < group.intervalMinutes) {
             results.push({
@@ -328,7 +328,7 @@ export async function GET() {
         if (telegramSuccess || whatsappSuccess) {
           await prisma.group.update({
             where: { id: group.id },
-            data: { lastPostedAt: now },
+            data: { lastcreatedAt: now },
           });
 
           const canais = [];

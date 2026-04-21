@@ -13,7 +13,7 @@ type PostLog = {
   linkId?: string | null;
   linkTitle?: string | null;
   telegramChatId?: string | null;
-  postedAt: string;
+  createdAt: string;
 };
 
 function cn(...classes: Array<string | false | null | undefined>) {
@@ -156,7 +156,7 @@ export default function LogsPage() {
                   </span>
 
                   <span className="text-[12px] text-slate-500">
-                    {formatDateTime(log.postedAt)}
+                    {formatDateTime(log.createdAt)}
                   </span>
                 </div>
 

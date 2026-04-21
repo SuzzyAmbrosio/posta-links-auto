@@ -224,7 +224,7 @@ export async function POST(_req: Request, context: RouteContext) {
     await prisma.group.update({
       where: { id: group.id },
       data: {
-        lastPostedAt: new Date(),
+        lastcreatedAt: new Date(),
       },
     });
 

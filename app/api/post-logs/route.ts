@@ -27,7 +27,7 @@ export async function GET() {
         userId: user.id,
       },
       orderBy: {
-        postedAt: "desc",
+        createdAt: "desc",
       },
       take: 100,
     });
