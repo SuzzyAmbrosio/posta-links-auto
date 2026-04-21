@@ -14,18 +14,42 @@ model User {
   email String? @unique
   emailVerified DateTime?
   image String?
-  password String?
-  plan String @default("FREE")
-
   accounts Account[]
   sessions Session[]
+
   links Link[]
-  groups Group[]
   settings Settings?
-  postLogs PostLog[]
+  whatsappEnvios WhatsappEnvio[]
+
+  // Adiciona essas 2 linhas abaixo:
+  telegramPosts TelegramPost[]
+  telegramChannels TelegramChannel[]
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt DateTime @updatedAt
+}
+
+model TelegramPost {
+  id String @id @default(cuid())
+  userId String
+  channelId String?
+  message String
+  sent Boolean @default(true)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model TelegramChannel {
+  id String @id @default(cuid())
+  userId String
+  chatId String
+  name String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, chatId])
 }
 
 model Account {
@@ -178,27 +202,4 @@ model PostLog {
 
   @@index([userId])
   @@index([createdAt])
-}
-
-model TelegramPost {
-  id String @id @default(cuid())
-  userId String
-  channelId String?
-  message String
-  sent Boolean @default(true)
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id])
-}
-
-model TelegramChannel {
-  id String @id @default(cuid())
-  userId String
-  chatId String
-  name String?
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id])
-
-  @@unique([userId, chatId])
 }
