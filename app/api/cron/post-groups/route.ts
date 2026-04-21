@@ -37,6 +37,31 @@ function buildTelegramMessage(params: {
     .join("\n\n");
 }
 
+function buildWhatsappMessage(params: {
+  title: string;
+  shortUrl: string;
+  customTitle?: string;
+  priceLabel?: string;
+  cta?: string;
+}) {
+  const { title, shortUrl, customTitle, priceLabel, cta } = params;
+  const finalTitle = customTitle?.trim() || title;
+  const finalPrice = priceLabel?.trim();
+  const finalCta = cta?.trim() || "👉 Garanta já:";
+
+  return [
+    `🔥 *${finalTitle}*`,
+    finalPrice ? `💰 ${finalPrice}` : "",
+    "",
+    `${finalCta}`,
+    shortUrl,
+    "",
+    "⏰ Oferta por tempo limitado!",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
 function diffMinutes(from: Date, to: Date) {
   return Math.floor((to.getTime() - from.getTime()) / 1000 / 60);
 }
@@ -119,6 +144,7 @@ export async function GET() {
 
         const settings = group.user.settings;
 
+        // TELEGRAM
         const botToken =
           group.telegramToken?.trim() ||
           settings?.telegramBotToken?.trim() ||
@@ -129,22 +155,27 @@ export async function GET() {
           settings?.telegramChatId?.trim() ||
           "";
 
+        // WHATSAPP
+        const whatsappInstanceId = settings?.whatsappInstanceId?.trim() || "";
+        const whatsappToken = settings?.whatsappToken?.trim() || "";
+        const whatsappGroupId = settings?.whatsappGroupId?.trim() || "";
+
         const parseMode = settings?.telegramParseMode?.trim() || "HTML";
         const disablePreview = Boolean(settings?.telegramDisablePreview);
 
-        if (!botToken || !chatId) {
+        if (!botToken && !whatsappApiKey) {
           results.push({
             groupId: group.id,
             groupName: group.name,
             status: "error",
-            detail: "Telegram não configurado.",
+            detail: "Telegram e WhatsApp não configurados.",
           });
 
           await prisma.postLog.create({
             data: {
               userId: group.userId,
               status: "error",
-              detail: "Telegram não configurado.",
+              detail: "Telegram e WhatsApp não configurados.",
               groupId: group.id,
               groupName: group.name,
             },
@@ -210,44 +241,115 @@ export async function GET() {
           ? `${baseUrl}/${selectedLink.shortCode}`
           : selectedLink.url;
 
-        const message = buildTelegramMessage({
-          title: selectedLink.title,
-          shortUrl,
-          customTitle: group.postTitle,
-          priceLabel: group.postPriceLabel,
-          cta: group.postCta,
-          defaultMessage: settings?.telegramDefaultMessage || "",
-          signature: settings?.telegramSignature || "",
-        });
+        let telegramSuccess = false;
+        let whatsappSuccess = false;
+        let errors: string[] = [];
 
-        const telegramRes = await fetch(
-          `https://api.telegram.org/bot${botToken}/sendMessage`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              chat_id: chatId,
-              text: message,
-              parse_mode: parseMode === "Plain" ? undefined : parseMode,
-              disable_web_page_preview: disablePreview,
-            }),
+        // DISPARA TELEGRAM
+        if (botToken && chatId) {
+          const message = buildTelegramMessage({
+            title: selectedLink.title,
+            shortUrl,
+            customTitle: group.postTitle,
+            priceLabel: group.postPriceLabel,
+            cta: group.postCta,
+            defaultMessage: settings?.telegramDefaultMessage || "",
+            signature: settings?.telegramSignature || "",
+          });
+
+          try {
+            const telegramRes = await fetch(
+              `https://api.telegram.org/bot${botToken}/sendMessage`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  chat_id: chatId,
+                  text: message,
+                  parse_mode: parseMode === "Plain" ? undefined : parseMode,
+                  disable_web_page_preview: disablePreview,
+                }),
+              }
+            );
+
+            const telegramData = await telegramRes.json();
+            if (telegramRes.ok && telegramData?.ok) {
+              telegramSuccess = true;
+            } else {
+              errors.push(`Telegram: ${telegramData?.description || "Erro"}`);
+            }
+          } catch {
+            errors.push("Telegram: Falha na requisição");
           }
-        );
+        }
 
-        const telegramData = await telegramRes.json();
+        // DISPARA WHATSAPP
+        if (whatsappInstanceId && whatsappToken && whatsappGroupId) {
+          const whatsappMessage = buildWhatsappMessage({
+            title: selectedLink.title,
+            shortUrl,
+            customTitle: group.postTitle,
+            priceLabel: group.postPriceLabel,
+            cta: group.postCta,
+          });
 
-        if (!telegramRes.ok || !telegramData?.ok) {
-          const detail = telegramData?.description || "Erro Telegram.";
+          try {
+            const whatsappRes = await fetch(
+              `https://api.z-api.io/instances/${whatsappInstanceId}/token/${whatsappToken}/send-text`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  phone: whatsappGroupId,
+                  message: whatsappMessage,
+                }),
+              }
+            );
+
+            const whatsappData = await whatsappRes.json();
+            if (whatsappRes.ok &&!whatsappData?.error) {
+              whatsappSuccess = true;
+            } else {
+              errors.push(`WhatsApp: ${whatsappData?.message || "Erro"}`);
+            }
+          } catch {
+            errors.push("WhatsApp: Falha na requisição");
+          }
+        }
+
+        // ATUALIZA GRUPO SE PELO MENOS UM DEU CERTO
+        if (telegramSuccess || whatsappSuccess) {
+          await prisma.group.update({
+            where: { id: group.id },
+            data: { lastPostedAt: now },
+          });
+
+          const canais = [];
+          if (telegramSuccess) canais.push("Telegram");
+          if (whatsappSuccess) canais.push("WhatsApp");
+
+          await prisma.postLog.create({
+            data: {
+              userId: group.userId,
+              status: "success",
+              detail: `Enviado para ${canais.join(" + ")}: ${selectedLink.title}`,
+              groupId: group.id,
+              groupName: group.name,
+              linkId: selectedLink.id,
+              linkTitle: selectedLink.title,
+              telegramChatId: telegramSuccess ? chatId : undefined,
+            },
+          });
 
           results.push({
             groupId: group.id,
             groupName: group.name,
-            status: "error",
-            detail,
+            status: "posted",
+            detail: `${canais.join(" + ")}: ${selectedLink.title}`,
           });
-
+        } else {
+          const detail = errors.join(" | ") || "Falha ao enviar";
+          
           await prisma.postLog.create({
             data: {
               userId: group.userId,
@@ -257,39 +359,16 @@ export async function GET() {
               groupName: group.name,
               linkId: selectedLink.id,
               linkTitle: selectedLink.title,
-              telegramChatId: chatId,
             },
           });
 
-          continue;
-        }
-
-        await prisma.group.update({
-          where: { id: group.id },
-          data: {
-            lastPostedAt: now,
-          },
-        });
-
-        await prisma.postLog.create({
-          data: {
-            userId: group.userId,
-            status: "success",
-            detail: `Link enviado: ${selectedLink.title}`,
+          results.push({
             groupId: group.id,
             groupName: group.name,
-            linkId: selectedLink.id,
-            linkTitle: selectedLink.title,
-            telegramChatId: chatId,
-          },
-        });
-
-        results.push({
-          groupId: group.id,
-          groupName: group.name,
-          status: "posted",
-          detail: `Link enviado: ${selectedLink.title}`,
-        });
+            status: "error",
+            detail,
+          });
+        }
       } catch {
         results.push({
           groupId: group.id,

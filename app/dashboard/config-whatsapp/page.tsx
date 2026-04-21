@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
 import { toast, Toaster } from "sonner"
-import { MessageCircle, CheckCircle2, AlertCircle, Smartphone, QrCode } from "lucide-react"
+import { MessageCircle, CheckCircle2, AlertCircle, Smartphone, Users } from "lucide-react"
 
 export default function ConfigWhatsappPage() {
   const { data: session } = useSession()
   const [whatsappNumber, setWhatsappNumber] = useState("")
-  const [whatsappApiKey, setWhatsappApiKey] = useState("")
+  const [whatsappInstanceId, setWhatsappInstanceId] = useState("")
+  const [whatsappToken, setWhatsappToken] = useState("")
+  const [whatsappGroupId, setWhatsappGroupId] = useState("")
   const [isConnected, setIsConnected] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isTesting, setIsTesting] = useState(false)
@@ -22,19 +24,24 @@ export default function ConfigWhatsappPage() {
       const res = await fetch("/api/whatsapp")
       if (!res.ok) return
       const data = await res.json()
-      const number = data.settings?.whatsappNumber || ""
-      const key = data.settings?.whatsappApiKey || ""
-      setWhatsappNumber(number)
-      setWhatsappApiKey(key)
-      setIsConnected(!!number)
+      setWhatsappNumber(data.settings?.whatsappNumber || "")
+      setWhatsappInstanceId(data.settings?.whatsappInstanceId || "")
+      setWhatsappToken(data.settings?.whatsappToken || "")
+      setWhatsappGroupId(data.settings?.whatsappGroupId || "")
+      setIsConnected(
+       !!data.settings?.whatsappNumber &&
+       !!data.settings?.whatsappInstanceId &&
+       !!data.settings?.whatsappToken &&
+       !!data.settings?.whatsappGroupId
+      )
     } catch (e) {
       console.error(e)
     }
   }
 
   async function salvarConfig() {
-    if (!whatsappNumber) {
-      toast.error("Preencha o número do WhatsApp")
+    if (!whatsappNumber ||!whatsappInstanceId ||!whatsappToken ||!whatsappGroupId) {
+      toast.error("Preencha todos os campos")
       return
     }
 
@@ -43,14 +50,19 @@ export default function ConfigWhatsappPage() {
       const res = await fetch("/api/whatsapp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ whatsappNumber, whatsappApiKey }),
+        body: JSON.stringify({
+          whatsappNumber,
+          whatsappInstanceId,
+          whatsappToken,
+          whatsappGroupId,
+        }),
       })
 
       const result = await res.json()
       if (!res.ok) throw new Error(result.error)
 
       setIsConnected(true)
-      toast.success("Configurações do WhatsApp salvas!")
+      toast.success("WhatsApp configurado com sua API!")
     } catch (e: any) {
       toast.error(e.message)
       setIsConnected(false)
@@ -59,20 +71,32 @@ export default function ConfigWhatsappPage() {
     }
   }
 
-  async function testarConexao() {
-    if (!whatsappNumber) {
-      toast.error("Salve o número primeiro")
+  async function testarEnvio() {
+    if (!whatsappInstanceId ||!whatsappToken ||!whatsappGroupId) {
+      toast.error("Salve todas as credenciais primeiro")
       return
     }
 
     setIsTesting(true)
     try {
-      // Aqui você vai chamar sua API de WhatsApp real depois
-      // Por enquanto só simula
-      await new Promise(r => setTimeout(r, 1500))
-      toast.success("Mensagem de teste enviada! Confere no WhatsApp.")
+      const res = await fetch(
+        `https://api.z-api.io/instances/${whatsappInstanceId}/token/${whatsappToken}/send-text`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            phone: whatsappGroupId,
+            message: "✅ Bot conectado! Esse grupo vai receber ofertas automáticas do Posta Links Auto.",
+          }),
+        }
+      )
+
+      const data = await res.json()
+      if (!res.ok || data?.error) throw new Error(data?.message || "Erro ao enviar")
+
+      toast.success("Mensagem de teste enviada no grupo!")
     } catch (e: any) {
-      toast.error(`Erro ao testar: ${e.message}`)
+      toast.error(`Erro: ${e.message}. Confere Instance ID e Token.`)
     } finally {
       setIsTesting(false)
     }
@@ -85,7 +109,7 @@ export default function ConfigWhatsappPage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Configuração WhatsApp</h1>
         <p className="mt-1 text-sm text-gray-600">
-          Conecte seu WhatsApp Business ao Posta Links Auto para disparar ofertas automaticamente para seus grupos e contatos.
+          Conecte sua própria API do WhatsApp para disparar ofertas no seu grupo automaticamente.
         </p>
       </div>
 
@@ -93,12 +117,12 @@ export default function ConfigWhatsappPage() {
         <div className="rounded-lg border border-gray-200 bg-white p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Status WhatsApp</p>
+              <p className="text-sm text-gray-600">Status</p>
               <p className="mt-1 text-2xl font-bold">
                 {isConnected? (
-                  <span className="text-green-600">Conectado</span>
+                  <span className="text-green-600">Ativo</span>
                 ) : (
-                  <span className="text-red-600">Desconectado</span>
+                  <span className="text-red-600">Inativo</span>
                 )}
               </p>
             </div>
@@ -113,28 +137,28 @@ export default function ConfigWhatsappPage() {
         <div className="rounded-lg border border-gray-200 bg-white p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Mensagens Enviadas</p>
-              <p className="mt-1 text-2xl font-bold text-gray-900">1,247</p>
+              <p className="text-sm text-gray-600">Envios Hoje</p>
+              <p className="mt-1 text-2xl font-bold text-gray-900">47</p>
             </div>
             <Smartphone className="h-10 w-10 text-green-600" />
           </div>
-          <p className="mt-2 text-xs text-gray-500">Últimos 30 dias</p>
+          <p className="mt-2 text-xs text-gray-500">Via sua API</p>
         </div>
 
         <div className="rounded-lg border border-gray-200 bg-white p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Grupos Ativos</p>
-              <p className="mt-1 text-2xl font-bold text-gray-900">8</p>
+              <p className="text-sm text-gray-600">Grupo Conectado</p>
+              <p className="mt-1 text-2xl font-bold text-gray-900">{isConnected? "1" : "0"}</p>
             </div>
-            <MessageCircle className="h-10 w-10 text-purple-600" />
+            <Users className="h-10 w-10 text-purple-600" />
           </div>
-          <p className="mt-2 text-xs text-gray-500">Configure em Canais/Grupos</p>
+          <p className="mt-2 text-xs text-gray-500">Recebe posts automáticos</p>
         </div>
       </div>
 
       <div className="rounded-lg border border-gray-200 bg-white p-6">
-        <h2 className="mb-4 text-lg font-bold text-gray-900">Como conectar seu WhatsApp</h2>
+        <h2 className="mb-4 text-lg font-bold text-gray-900">Como pegar suas credenciais da Z-API</h2>
 
         <div className="space-y-4">
           <div className="flex gap-4">
@@ -142,9 +166,9 @@ export default function ConfigWhatsappPage() {
               1
             </div>
             <div>
-              <p className="font-semibold text-gray-900">Use WhatsApp Business</p>
+              <p className="font-semibold text-gray-900">Crie conta em z-api.io</p>
               <p className="mt-1 text-sm text-gray-600">
-                Baixe o WhatsApp Business no celular. É gratuito e permite automação.
+                Plano grátis dá pra testar. Depois cobra por mensagem enviada.
               </p>
             </div>
           </div>
@@ -154,9 +178,9 @@ export default function ConfigWhatsappPage() {
               2
             </div>
             <div>
-              <p className="font-semibold text-gray-900">Conecte via API ou QR Code</p>
+              <p className="font-semibold text-gray-900">Crie uma Instância e escaneie o QR Code</p>
               <p className="mt-1 text-sm text-gray-600">
-                Use uma API como Z-API, Evolution API, ou escaneie o QR Code para conectar.
+                Use WhatsApp Business no celular que vai disparar as mensagens.
               </p>
             </div>
           </div>
@@ -166,9 +190,21 @@ export default function ConfigWhatsappPage() {
               3
             </div>
             <div>
-              <p className="font-semibold text-gray-900">Cole o número e API Key abaixo</p>
+              <p className="font-semibold text-gray-900">Copie Instance ID e Token</p>
               <p className="mt-1 text-sm text-gray-600">
-                Use o formato: 5583999999999 (código do país + DDD + número)
+                Fica em Instâncias &gt; Sua instância &gt; Detalhes
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-600 text-sm font-bold text-white">
+              4
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">Pegue o ID do grupo</p>
+              <p className="mt-1 text-sm text-gray-600">
+                Z-API &gt; Grupos &gt; Lista. Copia o ID tipo: 120363123456789012@g.us
               </p>
             </div>
           </div>
@@ -176,7 +212,7 @@ export default function ConfigWhatsappPage() {
       </div>
 
       <div className="rounded-lg border border-gray-200 bg-white p-6">
-        <h2 className="mb-4 text-lg font-bold text-gray-900">Configurar WhatsApp</h2>
+        <h2 className="mb-4 text-lg font-bold text-gray-900">Suas Credenciais da API</h2>
 
         <div className="space-y-4">
           <div>
@@ -191,23 +227,51 @@ export default function ConfigWhatsappPage() {
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none"
             />
             <p className="mt-1 text-xs text-gray-500">
-              Código do país + DDD + número. Ex: 5583999999999
+              Número que vai enviar as mensagens. Ex: 5583999999999
             </p>
           </div>
 
           <div>
             <label className="mb-1 block text-xs font-medium uppercase text-gray-700">
-              API KEY (Opcional)
+              INSTANCE ID
             </label>
             <input
               type="text"
-              value={whatsappApiKey}
-              onChange={(e) => setWhatsappApiKey(e.target.value)}
-              placeholder="Chave da API Z-API, Evolution, etc"
+              value={whatsappInstanceId}
+              onChange={(e) => setWhatsappInstanceId(e.target.value)}
+              placeholder="3D1234ABCD"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none"
+            />
+            <p className="mt-1 text-xs text-gray-500">ID da sua instância na Z-API</p>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-medium uppercase text-gray-700">
+              TOKEN
+            </label>
+            <input
+              type="password"
+              value={whatsappToken}
+              onChange={(e) => setWhatsappToken(e.target.value)}
+              placeholder="Client-Token da Z-API"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none"
+            />
+            <p className="mt-1 text-xs text-gray-500">Token secreto da sua instância</p>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-medium uppercase text-gray-700">
+              ID DO GRUPO
+            </label>
+            <input
+              type="text"
+              value={whatsappGroupId}
+              onChange={(e) => setWhatsappGroupId(e.target.value)}
+              placeholder="120363123456789012@g.us"
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none"
             />
             <p className="mt-1 text-xs text-gray-500">
-              Se usar Z-API, Evolution API ou similar. Deixe vazio se for conectar por QR Code
+              Grupo onde os produtos serão postados automaticamente
             </p>
           </div>
 
@@ -215,18 +279,18 @@ export default function ConfigWhatsappPage() {
             <button
               type="button"
               onClick={salvarConfig}
-              disabled={!whatsappNumber || isSaving}
+              disabled={!whatsappNumber ||!whatsappInstanceId ||!whatsappToken ||!whatsappGroupId || isSaving}
               className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isSaving? "Salvando..." : "Salvar Configuração"}
+              {isSaving? "Salvando..." : "Conectar Minha API"}
             </button>
             <button
               type="button"
-              onClick={testarConexao}
+              onClick={testarEnvio}
               disabled={!isConnected || isTesting}
               className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isTesting? "Enviando..." : "Testar Envio"}
+              {isTesting? "Enviando..." : "Testar no Grupo"}
             </button>
           </div>
         </div>
@@ -236,9 +300,9 @@ export default function ConfigWhatsappPage() {
         <div className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4">
           <CheckCircle2 className="h-6 w-6 text-green-600" />
           <div>
-            <p className="font-semibold text-green-900">WhatsApp Conectado com Sucesso!</p>
+            <p className="font-semibold text-green-900">Sua API está conectada!</p>
             <p className="text-sm text-green-700">
-              Seu WhatsApp está pronto para disparar ofertas. Configure os grupos em Canais/Grupos.
+              O cron vai usar suas credenciais pra postar no seu grupo automaticamente.
             </p>
           </div>
         </div>
@@ -250,10 +314,10 @@ export default function ConfigWhatsappPage() {
           <div>
             <p className="font-semibold">⚠️ Importante:</p>
             <ul className="mt-2 list-disc space-y-1 pl-4">
-              <li>Use WhatsApp Business para evitar bloqueio do número</li>
-              <li>Não dispare spam. Respeite a LGPD e leis de marketing</li>
-              <li>O plano INICIANTE permite até 200 envios/dia. Faça upgrade para ilimitado</li>
-              <li>Mantenha o celular conectado se usar QR Code</li>
+              <li>Você é responsável pelos custos da sua API. Z-API cobra por mensagem</li>
+              <li>Use número secundário. Se tomar ban, perde o número</li>
+              <li>Limite de envio: 1 mensagem a cada 3 minutos pra não bloquear</li>
+              <li>Se trocar de API, só atualizar Instance ID e Token aqui</li>
             </ul>
           </div>
         </div>

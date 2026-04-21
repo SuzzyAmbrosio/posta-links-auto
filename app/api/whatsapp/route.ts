@@ -12,7 +12,12 @@ export async function GET() {
 
     const settings = await prisma.settings.findUnique({
       where: { userId: session.user.id },
-      select: { whatsappNumber: true, whatsappApiKey: true }
+      select: {
+        whatsappNumber: true,
+        whatsappInstanceId: true,
+        whatsappToken: true,
+        whatsappGroupId: true
+      }
     })
 
     return NextResponse.json({ settings: settings || {} })
@@ -29,19 +34,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { whatsappNumber, whatsappApiKey } = await req.json()
+    const { whatsappNumber, whatsappInstanceId, whatsappToken, whatsappGroupId } = await req.json()
 
-    if (!whatsappNumber) {
-      return NextResponse.json({ error: "Preencha o número do WhatsApp" }, { status: 400 })
+    if (!whatsappNumber ||!whatsappInstanceId ||!whatsappToken ||!whatsappGroupId) {
+      return NextResponse.json({ error: "Preencha todos os campos" }, { status: 400 })
     }
 
     await prisma.settings.upsert({
       where: { userId: session.user.id },
-      update: { whatsappNumber, whatsappApiKey },
+      update: { whatsappNumber, whatsappInstanceId, whatsappToken, whatsappGroupId },
       create: {
         userId: session.user.id,
         whatsappNumber,
-        whatsappApiKey,
+        whatsappInstanceId,
+        whatsappToken,
+        whatsappGroupId,
       },
     })
 

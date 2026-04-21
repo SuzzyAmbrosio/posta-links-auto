@@ -131,8 +131,12 @@ model Settings {
   whatsappFooterCta String? @default("")
   whatsappIncludeInviteLink Boolean @default(false)
   whatsappShortenText Boolean @default(false)
-  whatsappNumber String?
-  whatsappApiKey String?
+  
+  // WhatsApp - cada usuário conecta a própria API
+  whatsappNumber String? // Número que envia
+  whatsappInstanceId String? // ID da instância Z-API/Evolution
+  whatsappToken String? // Token da instância
+  whatsappGroupId String? // ID do grupo pra postar
 
   // Afiliados
   aliexpressAppKey String?
