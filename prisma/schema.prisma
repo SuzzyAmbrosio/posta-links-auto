@@ -48,12 +48,11 @@ model TelegramChannel {
   chatId    String
   name      String
   isActive  Boolean  @default(true)
-  interval  Int? // minutos entre posts
-  random    Boolean  @default(false)
+  interval  Int?
   products  Int      @default(0)
+  // REMOVI: random Boolean @default(false)
   createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, chatId])
 }
@@ -61,15 +60,14 @@ model TelegramChannel {
 model WhatsappGroup {
   id        String   @id @default(cuid())
   userId    String
-  groupId   String // termina com @g.us
+  groupId   String
   name      String
   isActive  Boolean  @default(true)
   interval  Int?
-  random    Boolean  @default(false)
   products  Int      @default(0)
+  // REMOVI: random Boolean @default(false)
   createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, groupId])
 }

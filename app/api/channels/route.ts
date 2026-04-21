@@ -61,7 +61,6 @@ export async function POST(req: Request) {
         name,
         chatId,
         interval: interval || null,
-        random: random || false
       }
     })
     return NextResponse.json(channel)
@@ -71,13 +70,12 @@ export async function POST(req: Request) {
     if (!groupId.endsWith("@g.us")) {
       return NextResponse.json({ error: "ID do grupo inválido" }, { status: 400 })
     }
-    const group = await prisma.whatsappGroup.create({
+    const group = await prisma.WhatsappGroup.create({
       data: {
         userId: session.user.id,
         name,
         groupId,
         interval: interval || null,
-        random: random || false
       }
     })
     return NextResponse.json(group)

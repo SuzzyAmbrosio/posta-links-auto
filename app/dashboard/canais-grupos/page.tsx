@@ -14,7 +14,6 @@ type Channel = {
   groupId?: string
   isActive: boolean
   interval: number | null
-  random: boolean
   products: number
   createdAt: string
 }
@@ -37,13 +36,38 @@ export default function CanaisGruposPage() {
   const [newChannelName, setNewChannelName] = useState("")
   const [newChannelId, setNewChannelId] = useState("")
   const [newInterval, setNewInterval] = useState("")
-  const [newRandom, setNewRandom] = useState(false)
   const [loading, setLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  const [telegramConnected, setTelegramConnected] = useState(false)
+  const [whatsappConnected, setWhatsappConnected] = useState(false)
 
   useEffect(() => {
-    if (session) loadData()
+    if (session) {
+      loadSettings()
+      loadData()
+    }
   }, [session])
+
+  useEffect(() => {
+    // Auto-seleciona a plataforma conectada
+    if (telegramConnected &&!whatsappConnected) {
+      setNewChannelType("telegram")
+    } else if (!telegramConnected && whatsappConnected) {
+      setNewChannelType("whatsapp")
+    }
+  }, [telegramConnected, whatsappConnected])
+
+  async function loadSettings() {
+    try {
+      const res = await fetch("/api/settings")
+      if (!res.ok) return
+      const data = await res.json()
+      setTelegramConnected(data.telegramConnected)
+      setWhatsappConnected(data.whatsappConnected)
+    } catch (e) {
+      console.error(e)
+    }
+  }
 
   async function loadData() {
     try {
@@ -52,8 +76,8 @@ export default function CanaisGruposPage() {
       const data = await res.json()
 
       const all: Channel[] = [
-      ...data.telegram.map((c: any) => ({...c, type: "telegram" })),
-      ...data.whatsapp.map((c: any) => ({...c, type: "whatsapp" }))
+    ...data.telegram.map((c: any) => ({...c, type: "telegram" })),
+    ...data.whatsapp.map((c: any) => ({...c, type: "whatsapp" }))
       ]
 
       setChannels(all)
@@ -91,8 +115,7 @@ export default function CanaisGruposPage() {
           name: newChannelName,
           chatId: newChannelType === "telegram"? newChannelId : undefined,
           groupId: newChannelType === "whatsapp"? newChannelId : undefined,
-          interval: newInterval? parseInt(newInterval) : null,
-          random: newRandom
+          interval: newInterval? parseInt(newInterval) : null
         })
       })
 
@@ -104,7 +127,6 @@ export default function CanaisGruposPage() {
       setNewChannelName("")
       setNewChannelId("")
       setNewInterval("")
-      setNewRandom(false)
       loadData()
     } catch (e: any) {
       toast.error(e.message)
@@ -149,12 +171,13 @@ export default function CanaisGruposPage() {
   })
 
   const limiteAtingido = stats.total >= stats.limit
+  const nenhumaPlataformaConectada =!telegramConnected &&!whatsappConnected
 
   return (
     <div className="space-y-5">
       <Toaster richColors />
 
-      {/* Banner INICIANTES - IGUAL AO PRINT */}
+      {/* Banner INICIANTES */}
       <div className="rounded-lg border border-[#FFE082] bg-[#FFF8E1] px-5 py-4">
         <div className="flex flex-col items-center gap-3 text-center">
           <p className="text-sm leading-relaxed text-amber-900">
@@ -167,7 +190,7 @@ export default function CanaisGruposPage() {
         </div>
       </div>
 
-      {/* Header Gerenciar Grupos - IGUAL AO PRINT */}
+      {/* Header Gerenciar Grupos */}
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
@@ -182,7 +205,7 @@ export default function CanaisGruposPage() {
         <div className="flex flex-col items-end gap-1">
           <button
             onClick={() => setShowAddModal(true)}
-            disabled={limiteAtingido}
+            disabled={limiteAtingido || nenhumaPlataformaConectada}
             className="flex items-center gap-2 rounded-md bg-[#1976D2] px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
           >
             <Plus size={18} />
@@ -192,6 +215,12 @@ export default function CanaisGruposPage() {
             <p className="flex items-center gap-1 text-xs text-red-600">
               <AlertCircle size={12} />
               Limite atingido: {stats.total}/{stats.limit}
+            </p>
+          )}
+          {nenhumaPlataformaConectada && (
+            <p className="flex items-center gap-1 text-xs text-red-600">
+              <AlertCircle size={12} />
+              Conecte Telegram ou WhatsApp primeiro
             </p>
           )}
         </div>
@@ -237,7 +266,7 @@ export default function CanaisGruposPage() {
             onClick={() => setActiveTab("todos")}
             className={`border-b-2 pb-3 text-sm font-medium transition ${
               activeTab === "todos"
-             ? "border-[#1976D2] text-[#1976D2]"
+            ? "border-[#1976D2] text-[#1976D2]"
                 : "border-transparent text-gray-600 hover:text-gray-900"
             }`}
           >
@@ -247,7 +276,7 @@ export default function CanaisGruposPage() {
             onClick={() => setActiveTab("telegram")}
             className={`flex items-center gap-2 border-b-2 pb-3 text-sm font-medium transition ${
               activeTab === "telegram"
-             ? "border-[#1976D2] text-[#1976D2]"
+            ? "border-[#1976D2] text-[#1976D2]"
                 : "border-transparent text-gray-600 hover:text-gray-900"
             }`}
           >
@@ -258,7 +287,7 @@ export default function CanaisGruposPage() {
             onClick={() => setActiveTab("whatsapp")}
             className={`flex items-center gap-2 border-b-2 pb-3 text-sm font-medium transition ${
               activeTab === "whatsapp"
-             ? "border-[#1976D2] text-[#1976D2]"
+            ? "border-[#1976D2] text-[#1976D2]"
                 : "border-transparent text-gray-600 hover:text-gray-900"
             }`}
           >
@@ -282,7 +311,7 @@ export default function CanaisGruposPage() {
             </p>
             <button
               onClick={() => setShowAddModal(true)}
-              disabled={limiteAtingido}
+              disabled={limiteAtingido || nenhumaPlataformaConectada}
               className="mt-4 rounded-lg bg-[#1976D2] px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
             >
               Adicionar Primeiro Canal
@@ -318,7 +347,7 @@ export default function CanaisGruposPage() {
                         onClick={() => toggleStatus(channel.id, channel.type, channel.isActive)}
                         className={`rounded px-2 py-0.5 text-xs font-semibold ${
                           channel.isActive
-                         ? "bg-[#E8F5E9] text-[#2E7D32]"
+                        ? "bg-[#E8F5E9] text-[#2E7D32]"
                             : "bg-gray-200 text-gray-600"
                         }`}
                       >
@@ -332,14 +361,6 @@ export default function CanaisGruposPage() {
                     <div className="flex items-center gap-2 text-sm">
                       <span className="text-gray-600">Intervalo:</span>
                       <span className="font-semibold text-gray-900">{channel.interval? `${channel.interval}min` : "N/A"}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <span className="text-gray-600">Aleatório:</span>
-                      {channel.random? (
-                        <CheckCircle2 size={16} className="text-green-600" />
-                      ) : (
-                        <X size={16} className="text-red-600" />
-                      )}
                     </div>
                   </div>
 
@@ -377,7 +398,7 @@ export default function CanaisGruposPage() {
         </p>
       </div>
 
-      {/* Modal Adicionar */}
+      {/* Modal Adicionar - SEM O CHECKBOX DE ALEATÓRIO */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md rounded-lg bg-white p-6">
@@ -391,27 +412,32 @@ export default function CanaisGruposPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => setNewChannelType("telegram")}
+                    disabled={!telegramConnected}
                     className={`flex flex-1 items-center justify-center gap-2 rounded-lg border-2 py-3 text-sm font-medium transition ${
                       newChannelType === "telegram"
-                      ? "border-blue-600 bg-blue-50 text-blue-600"
+                    ? "border-blue-600 bg-blue-50 text-blue-600"
                         : "border-gray-200 text-gray-600 hover:border-gray-300"
-                    }`}
+                    } disabled:cursor-not-allowed disabled:opacity-40`}
                   >
                     <Send size={18} />
                     Telegram
                   </button>
                   <button
                     onClick={() => setNewChannelType("whatsapp")}
+                    disabled={!whatsappConnected}
                     className={`flex flex-1 items-center justify-center gap-2 rounded-lg border-2 py-3 text-sm font-medium transition ${
                       newChannelType === "whatsapp"
-                      ? "border-green-600 bg-green-50 text-green-600"
+                    ? "border-green-600 bg-green-50 text-green-600"
                         : "border-gray-200 text-gray-600 hover:border-gray-300"
-                    }`}
+                    } disabled:cursor-not-allowed disabled:opacity-40`}
                   >
                     <MessageCircle size={18} />
                     WhatsApp
                   </button>
                 </div>
+                {nenhumaPlataformaConectada && (
+                  <p className="mt-2 text-xs text-red-600">Conecte Telegram ou WhatsApp nas configurações primeiro</p>
+                )}
               </div>
 
               <div>
@@ -440,7 +466,7 @@ export default function CanaisGruposPage() {
                 />
                 <p className="mt-1 text-xs text-gray-500">
                   {newChannelType === "telegram"
-                  ? "Use @userinfobot pra pegar o Chat ID"
+                 ? "Use @userinfobot pra pegar o Chat ID"
                     : "Deve terminar com @g.us"
                   }
                 </p>
@@ -459,21 +485,10 @@ export default function CanaisGruposPage() {
                 />
               </div>
 
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="random"
-                  checked={newRandom}
-                  onChange={(e) => setNewRandom(e.target.checked)}
-                  className="rounded"
-                />
-                <label htmlFor="random" className="text-sm text-gray-700">Posts aleatórios</label>
-              </div>
-
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={adicionarCanal}
-                  disabled={!newChannelName ||!newChannelId || isSaving}
+                  disabled={!newChannelName ||!newChannelId || isSaving || nenhumaPlataformaConectada}
                   className="flex-1 rounded-lg bg-[#1976D2] py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
                 >
                   {isSaving? "Salvando..." : "Adicionar"}
@@ -484,7 +499,6 @@ export default function CanaisGruposPage() {
                     setNewChannelName("")
                     setNewChannelId("")
                     setNewInterval("")
-                    setNewRandom(false)
                   }}
                   className="flex-1 rounded-lg border border-gray-300 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                 >
