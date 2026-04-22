@@ -1,14 +1,15 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { useSession } from "next-auth/react"
-import { useParams } from "next/navigation"
+import { useParams, useSearchParams } from "next/navigation"
+import { toast } from "sonner"
+import Link from "next/link"
 import { 
   Globe, Send, Layout, Bot, Monitor, Instagram, Calendar, MessageSquare, Save, Wand2, MessageCircle,
   ShoppingBag, Package, Heart, Shirt, Tag, FileText, Users, Video, Check, Search, Link as LinkIcon,
   RefreshCw, AlertTriangle, FolderOpen, Link2, CheckCircle2, Unlink, AlertCircle, Mail,
   Copy, Upload, X, TrendingUp, Image as ImageIcon, ToggleLeft, ToggleRight, ShoppingCart, Puzzle,
-  Sparkles, Info, ChevronDown, Plus, ExternalLink, Trash2, Pencil, CheckCircle2 as CheckCircle, Clock
+  Sparkles, Info, ChevronDown, Plus, ExternalLink, Trash2, Pencil, CheckCircle2 as CheckCircle, Clock,
+  ArrowLeft // ADICIONA ISSO
 } from "lucide-react"
 import { Eye } from "lucide-react"
 
@@ -112,6 +113,7 @@ export default function EditarCanalPage() {
           <span className="text-sm font-semibold text-gray-900">Editar: {channel?.name || "Carregando..."}</span>
           <p className="text-xs text-gray-500">ID: {channel?.chatId || channel?.groupId}</p>
         </div>
+      </div>
 
       <div className="mx-4 mt-4 rounded-lg border border-gray-200 bg-white">
         <div className="flex flex-wrap gap-2 border-b border-gray-200 px-4 py-3">
@@ -123,7 +125,7 @@ export default function EditarCanalPage() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 rounded-md px-4 py-2 text- font-medium transition ${
                   activeTab === tab.id
-       ? "bg-[#1976D2] text-white"
+                    ? "bg-[#1976D2] text-white"
                     : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
@@ -174,6 +176,7 @@ export default function EditarCanalPage() {
   )
 }
 
+
 function GeralTab() {
   const [name, setName] = useState("")
   const [avatar, setAvatar] = useState("")
@@ -185,6 +188,7 @@ function GeralTab() {
   const searchParams = useSearchParams()
   const id = params.id as string
   const type = searchParams.get("type") as "telegram" | "whatsapp"
+  
 
   useEffect(() => {
     // Pega dados do parent via window ou context se precisar
