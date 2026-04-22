@@ -12,10 +12,11 @@ type Channel = {
   type: "telegram" | "whatsapp"
   chatId?: string
   groupId?: string
+  avatar?: string | null // ADICIONA ESSA LINHA
+  interval?: number | null
   isActive: boolean
-  interval: number | null
-  products: number
-  createdAt: string
+  createdAt: Date
+  updatedAt: Date
 }
 
 type Stats = {

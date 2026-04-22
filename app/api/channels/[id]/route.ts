@@ -31,7 +31,7 @@ export async function DELETE(
 return NextResponse.json(updated)
 }
 
-export async function PATCH(
+export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -39,36 +39,35 @@ export async function PATCH(
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const { id } = await params
-  const { type, name, avatar, interval, isActive } = await req.json()
+  const { searchParams } = new URL(req.url)
+  const type = searchParams.get("type")
 
-  if (type === "telegram") {
-    await prisma.telegramChannel.update({
-      where: { id },
-      data: {
-        name,
-        avatar,
-        interval,
-        isActive
-      }
-    })
-  } else {
-    await prisma.whatsappGroup.update({
-      where: { id },
-      data: {
-        name,
-        avatar,
-        interval,
-        isActive
-      }
-    })
-  }
-
-  // Remove o updateMany do Group porque não tem relação direta
-  // Se quiser salvar na tabela Group também, precisa ter internalCode ou outro campo pra identificar
-
-  const updated = type === "telegram"
-   ? await prisma.telegramChannel.findUnique({ where: { id } })
-    : await prisma.whatsappGroup.findUnique({ where: { id } })
-
-  return NextResponse.json(updated)
+  const channel = type === "telegram"
+    ? await prisma.telegramChannel.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          name: true,
+          avatar: true, // GARANTE QUE VEM
+          interval: true,
+          isActive: true,
+          chatId: true,
+          createdAt: true,
+          updatedAt: true
+        }
+      })
+    : await prisma.whatsappGroup.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          name: true,
+          avatar: true, // GARANTE QUE VEM
+          interval: true,
+          isActive: true,
+          groupId: true,
+          createdAt: true,
+          updatedAt: true
+        }
+      })
+  return NextResponse.json(channel)
 }
