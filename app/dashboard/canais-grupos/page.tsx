@@ -328,8 +328,8 @@ export default function CanaisGruposPage() {
                 <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-gray-100">
                   {channel.type === "telegram"? (
                     <img
-                      src={channel?.avatar || grupoData.foto}
-                      alt={channel?.name || grupoData.nome}
+                      src={channel?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(channel?.name || 'C')}&background=random`}
+                      alt={channel?.name || 'Canal'}
                       className="h-10 w-10 rounded-full object-cover"
                     />
                   ) : (
