@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useSession } from "next-auth/react"
 import { useParams } from "next/navigation"
 import { 
   Globe, Send, Layout, Bot, Monitor, Instagram, Calendar, MessageSquare, Save, Wand2, MessageCircle,
@@ -51,28 +52,66 @@ export default function EditarCanalPage() {
   const params = useParams()
   const [activeTab, setActiveTab] = useState("geral")
 
+  const { data: session } = useSession()
+  const [userPlan, setUserPlan] = useState("INICIANTE")
+  const [channel, setChannel] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (session) {
+      loadUserPlan()
+      loadChannel()
+    }
+  }, [session])
+
+  async function loadUserPlan() {
+    const res = await fetch("/api/user")
+    if (res.ok) {
+      const data = await res.json()
+      setUserPlan(data.plan || "INICIANTE")
+    }
+  }
+
+  async function loadChannel() {
+    try {
+      const res = await fetch("/api/channels")
+      const data = await res.json()
+      const id = params.id as string
+      const type = new URLSearchParams(window.location.search).get("type")
+      const found = [...data.telegram,...data.whatsapp].find((c: any) => c.id === id)
+      if (found) setChannel({...found, type })
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setLoading(false)
+    }
+  } 
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="mx-4 mt-4 rounded-lg bg-[#FFF8E1] px-5 py-3 text-center">
+      {userPlan === "INICIANTE" && (
+        <div className="mx-4 mt-4 rounded-lg bg-[#FFF8E1] px-5 py-3 text-center">
         <button className="inline-flex items-center rounded-md bg-[#FFC107] px-4 py-2 text- font-bold text-slate-900 hover:bg-amber-400">
           Upgrade Agora 🚀
         </button>
       </div>
+      )}
 
       <div className="mx-4 mt-4 flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3">
-        <img 
-          src={grupoData.foto} 
-          alt={grupoData.nome}
-          className="h-10 w-10 rounded-full object-cover"
-        />
-        <div className="flex items-center gap-2">
-          <span className="text- font-semibold text-gray-900">Editar: {grupoData.nome}</span>
-          <button className="flex items-center gap-1 rounded bg-[#1976D2] px-2.5 py-1 text- font-semibold text-white hover:bg-blue-700">
-            <RefreshCw size={12} />
-            Atualizar
-          </button>
+        <Link href="/dashboard/canais-grupos" className="rounded-md p-2 hover:bg-gray-100">
+          <ArrowLeft size={20} />
+        </Link>
+        <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gray-100">
+          {channel?.avatar? (
+            <img src={channel.avatar} alt={channel.name} className="h-full w-full object-cover" />
+          ) : (
+            <Send size={20} className="text-blue-600" />
+          )}
         </div>
-      </div>
+        <div className="flex-1">
+          <span className="text-sm font-semibold text-gray-900">Editar: {channel?.name || "Carregando..."}</span>
+          <p className="text-xs text-gray-500">ID: {channel?.chatId || channel?.groupId}</p>
+        </div>
 
       <div className="mx-4 mt-4 rounded-lg border border-gray-200 bg-white">
         <div className="flex flex-wrap gap-2 border-b border-gray-200 px-4 py-3">
@@ -136,379 +175,146 @@ export default function EditarCanalPage() {
 }
 
 function GeralTab() {
-  const [corTitulo, setCorTitulo] = useState("#000000")
-  const [corPreco, setCorPreco] = useState("#FFFFFF")
-  const [ativarFeedTelegram, setAtivarFeedTelegram] = useState(false)
+  const [name, setName] = useState("")
+  const [avatar, setAvatar] = useState("")
+  const [interval, setInterval] = useState("")
+  const [isActive, setIsActive] = useState(true)
+  const [uploading, setUploading] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const params = useParams()
+  const searchParams = useSearchParams()
+  const id = params.id as string
+  const type = searchParams.get("type") as "telegram" | "whatsapp"
+
+  useEffect(() => {
+    // Pega dados do parent via window ou context se precisar
+  }, [])
+
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+      const res = await fetch("/api/upload", { method: "POST", body: formData })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setAvatar(data.url)
+      toast.success("Foto carregada")
+    } catch (e: any) {
+      toast.error(e.message)
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  async function salvar() {
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/channels/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type,
+          name,
+          avatar,
+          interval: interval? parseInt(interval) : null,
+          isActive
+        })
+      })
+      if (!res.ok) throw new Error("Erro ao salvar")
+      toast.success("Salvo com sucesso!")
+    } catch (e: any) {
+      toast.error(e.message)
+    } finally {
+      setSaving(false)
+    }
+  }
 
   return (
     <>
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <div className="mb-9">
+          <div className="mb-6">
             <label className="mb-3 block text-xs font-semibold uppercase text-gray-600">
-              LINK DO PRODUTO:
+              FOTO DO GRUPO/CANAL
             </label>
-            <div className="rounded bg-[#FFFDE7] px-3 py-2">
-              <p className="text-xs font-bold text-[#F57C00]">
-                ATENÇÃO! produtos adicionados via link, NÃO são atualizados automaticamente.
-              </p>
+            <div className="flex items-center gap-4">
+              <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-gray-100">
+                {avatar? (
+                  <img src={avatar} alt="Avatar" className="h-full w-full object-cover" />
+                ) : (
+                  type === "telegram"? <Send size={32} className="text-blue-600" /> : <MessageCircle size={32} className="text-green-600" />
+                )}
+              </div>
+              <label className="flex cursor-pointer items-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                <Upload size={16} />
+                {uploading? "Enviando..." : "Trocar Foto"}
+                <input type="file" accept="image/*" onChange={handleUpload} className="hidden" disabled={uploading} />
+              </label>
             </div>
           </div>
 
-          <div className="mb-3">
-            <label className="mb-3 block text-xs font-semibold uppercase text-gray-600">
-              LINK
-            </label>
-            <input type="text" className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" />
-          </div>
-
-          <div className="mb-10">
-            <label className="grid grid-cols-[16px_1fr] gap-2 text-xs text-gray-600 cursor-pointer">
-              <input type="checkbox" className="mt- h-4 w-4 rounded border-gray-300 text-[#1976D2] focus:ring-[#1976D2]" />
-              <span className="leading-snug">Manter esse link no post.</span>
-            </label>
-          </div>
-
-          <div className="mb-10">
+          <div className="mb-6">
             <label className="mb-1 block text-xs font-semibold uppercase text-gray-600">
-              CABEÇALHO DINÂMICO:
+              NOME DO GRUPO/CANAL
             </label>
-            <select className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-              <option>Selecione um cabeçalho ou digite um novo</option>
-            </select>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            />
           </div>
 
-          <div className="mb-10">
+          <div className="mb-6">
             <label className="mb-1 block text-xs font-semibold uppercase text-gray-600">
-              OU DIGITE UM NOVO CABEÇALHO:
+              INTERVALO DE POSTAGEM (MINUTOS)
             </label>
-            <input type="text" className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" />
-          </div>
-
-          <div className="mb-3">
-            <label className="mb-1 block text-xs font-semibold uppercase text-gray-600">
-              LINK SHOPEE VÍDEO
-            </label>
-            <input type="text" className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" />
-          </div>
-
-          <div className="mb-3">
-            <label className="grid grid-cols-[16px_1fr] gap-2 text-xs text-gray-600 cursor-pointer">
-              <input type="checkbox" className="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#1976D2] focus:ring-[#1976D2]" />
-              <span className="leading-snug">Link do vídeo do produto na Shopee, se preenchido, o sistema trocará o link original do produto pelo link do vídeo.</span>
-            </label>
-          </div>
-
-          <div className="mb-10 rounded bg-[#FFF3E0] px-3 py-2">
-            <p className="flex items-start gap-1.5 text-xs font-semibold text-[#E65100]">
-              <AlertTriangle size={18} className="mt-0 shrink-0" />
-              Atenção! Link da Shopee vídeo só funciona no celular.
+            <input
+              type="number"
+              value={interval}
+              onChange={(e) => setInterval(e.target.value)}
+              placeholder="Deixe vazio para manual"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              Define de quanto em quanto tempo o bot posta automaticamente. Ex: 120 = a cada 2 horas
             </p>
           </div>
 
-          {['PREÇO ORIGINAL:', 'PREÇO ATUAL:', 'SUFIXO DO PREÇO:', 'PREÇO PARCELADO:'].map((label, i) => (
-            <div key={i} className="mb-10">
-              <label className="mb-1 block text-xs font-semibold uppercase text-gray-600">
-                {label}
-              </label>
-              <input 
-                type="text" 
-                defaultValue={i === 0 || i === 1? '' : i === 2? '' : ''} 
-                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" 
-              />
-            </div>
-          ))}
-
-          <div className="mb-8">
-            <label className="mb-1 block text-xs font-semibold uppercase text-gray-600">
-              DESCRIÇÃO:
-            </label>
-            <textarea className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" rows={3} />
-            <p className="mt-1 text-xs text-gray-500">Essa descrição se aplica somente a esse produto cadastrado.</p>
-          </div>
-
-          <div className="mb-8">
-            <label className="mb-3 block text-xs font-semibold uppercase text-gray-600">
-              AGENDAMENTO
-            </label>
-            <p className="text-sm font-bold text-gray-900">NÃO EXPIRA</p>
-            <p className="text-xs text-gray-500">Não deleta o produto automaticamente</p>
-          </div>
-
-          <div>
-            <label className="mb-3 block text-xs font-semibold uppercase text-gray-600">
-              AGENDAMENTO
-            </label>
-            <input 
-              type="datetime-local" 
-              className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" 
+          <div className="mb-6 flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="ativo"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300"
             />
-            <p className="mt-3 text-xs text-gray-500">Selecione a Data e Hora</p>
+            <label htmlFor="ativo" className="text-sm font-medium text-gray-700">
+              Postagem automática ativa
+            </label>
           </div>
+
+          <button
+            onClick={salvar}
+            disabled={saving}
+            className="w-full rounded bg-[#1976D2] py-2 text-sm font-bold text-white hover:bg-blue-700 disabled:bg-gray-300"
+          >
+            {saving? "Salvando..." : "Salvar Alterações"}
+          </button>
         </div>
 
-        <div className="space-y-4">
-          <div className="rounded-lg border border-gray-200 bg-white p-4">
-            <div className="mb-3.5">
-              <label className="mb-1.5 block text-xs font-semibold uppercase text-gray-600">
-                CONFIGURAÇÃO:
-              </label>
-              <div className="space-y-2">
-                <label className="grid grid-cols-[16px_1fr] gap-2 text-sm text-gray-700 cursor-pointer">
-                  <input type="checkbox" defaultChecked className="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#1976D2] focus:ring-[#1976D2]" />
-                  <span>Post automático</span>
-                </label>
-                <label className="grid grid-cols-[16px_1fr] gap-2 text-sm text-gray-700 cursor-pointer">
-                  <input type="checkbox" defaultChecked className="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#1976D2] focus:ring-[#1976D2]" />
-                  <span>Post em Loop</span>
-                </label>
-              </div>
-              <p className="mt-1 text-xs text-gray-500">Repete os produtos ao final da lista.</p>
-            </div>
-
-            {[
-              { label: 'POST INTERVALO (MINUTOS)', value: '' },
-              { label: 'HORA INÍCIO', value: '' },
-              { label: 'HORA FIM', value: '' },
-              { label: 'IDIOMA', value: '', sub: 'Título de produtos do AliExpress' },
-              { label: 'MOEDA', value: '', sub: 'Valor de produtos do AliExpress' },
-              { label: 'PAÍS', value: '', sub: 'país para envio (send to)' },
-            ].map((item, i) => (
-              <div key={i} className="mb-3.5">
-                <label className="mb-1 block text-xs font-semibold uppercase text-gray-600">
-                  {item.label}
-                </label>
-                <select className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                  <option>{item.value}</option>
-                </select>
-                {item.sub && <p className="mt-1 text-xs text-gray-500">{item.sub}</p>}
-              </div>
-            ))}
-
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold uppercase text-gray-600">
-                LOJAS ATIVAS
-              </label>
-              <div className="space-y-2">
-                {[
-                  { name: "AliExpress", checked: false },
-                  { name: "Amazon", checked: false },
-                  { name: "Magazine Luiza", checked: false },
-                  { name: "Shopee", checked: false },
-                  { name: "Shein", checked: false },
-                  { name: "Natura", checked: false },
-                  { name: "Awin", checked: false },
-                  { name: "Mercado Livre", checked: false },
-                ].map((loja) => (
-                  <label key={loja.name} className="grid grid-cols-[16px_1fr] gap-2 text-sm text-gray-700 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      defaultChecked={loja.checked} 
-                      className="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#1976D2] focus:ring-[#1976D2]" 
-                    />
-                    <span>{loja.name}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <button className="mt-4 w-full rounded bg-[#1976D2] py-2 text-sm font-bold text-white hover:bg-blue-700">
-              Salvar
-            </button>
-          </div>
-
-          {/* CARD CUPONS */}
-          <div className="rounded-lg border border-gray-200 bg-white">
-            <div className="rounded-t-lg bg-[#29B6F6] px-4 py-2.5">
-              <h4 className="text-sm font-semibold text-white">Cupons</h4>
-            </div>
-            <div className="space-y-3.5 p-4">
-              <div>
-                <label className="mb-1 block text-xs font-semibold uppercase text-gray-600">
-                  TIPO DE CUPOM
-                </label>
-                <select className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                  <option>Selecione o tipo de cupom</option>
-                  <option>Porcentagem</option>
-                  <option>Valor Fixo</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="mb-1 block text-xs font-semibold uppercase text-gray-600">
-                  VALOR DO DESCONTO
-                </label>
-                <input 
-                  type="text" 
-                  placeholder="Ex: 10 ou 50" 
-                  className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" 
-                />
-                <p className="mt-1 text-xs text-gray-500">Digite apenas números inteiros.</p>
-              </div>
-
-              <div>
-                <label className="mb-1 block text-xs font-semibold uppercase text-gray-600">
-                  VALOR MÍNIMO DA COMPRA PARA APLICAR O CUPOM
-                </label>
-                <input 
-                  type="text" 
-                  placeholder="Ex: 50 ou 100" 
-                  className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" 
-                />
-                <p className="mt-1 text-xs text-gray-500">Digite apenas números inteiros.</p>
-              </div>
-
-              <div>
-                <label className="mb-1 block text-xs font-semibold uppercase text-gray-600">
-                  VALOR MÁXIMO DO CUPOM
-                </label>
-                <input 
-                  type="text" 
-                  placeholder="Ex: 100 ou 200" 
-                  className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" 
-                />
-                <p className="mt-1 text-xs text-gray-500">Digite apenas números inteiros.</p>
-              </div>
-
-              <div>
-                <label className="mb-1 block text-xs font-semibold uppercase text-gray-600">
-                  CÓDIGO DO CUPOM
-                </label>
-                <input 
-                  type="text" 
-                  placeholder="Ex: CUPOM15" 
-                  className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" 
-                />
-              </div>
-
-              <div className="flex gap-2 pt-1">
-                <button className="rounded bg-[#1976D2] px-5 py-2 text-sm font-bold text-white hover:bg-blue-700">
-                  Salvar
-                </button>
-                <button className="rounded bg-[#388E3C] px-5 py-2 text-sm font-bold text-white hover:bg-green-700">
-                  Salvar e Postar
-                </button>
-              </div>
-            </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <h4 className="mb-3 text-sm font-semibold text-gray-900">Dicas</h4>
+          <div className="space-y-2 text-xs text-gray-600">
+            <p>• O intervalo define quantos minutos entre cada post automático</p>
+            <p>• Deixe vazio para postar apenas manualmente</p>
+            <p>• A foto é exibida no Telegram e no painel</p>
+            <p>• Desative a postagem automática se quiser controle total</p>
           </div>
         </div>
-      </div>
-
-      {/* TEMPLATES ABAIXO DOS 2 CARDS PRINCIPAIS */}
-      <div className="grid items-start gap-4 lg:grid-cols-2">
-        <div className="rounded-lg border border-gray-200 bg-white">
-          <div className="border-b border-gray-200 px-4 py-3">
-            <h4 className="text-sm font-semibold text-gray-900">Template Stories (16:9):</h4>
-          </div>
-          <div className="p-4">
-            <div className="mb-3 rounded bg-[#E0F7FA] px-3 py-2 text-center text-xs font-semibold text-[#00ACC1]">
-              CLIQUE AQUI para editar esse template no CANVA.
-            </div>
-
-            <div className="mb-3">
-              <label className="mb-1 block text-xs font-semibold uppercase text-gray-600">
-                ESCOLHA UM ARQUIVO
-              </label>
-              <div className="flex gap-2">
-                <button className="rounded border border-gray-300 px-3 py-1.5 text-xs hover:bg-gray-50">
-                  Escolher arquivo
-                </button>
-                <span className="py-1.5 text-xs text-gray-500">Nenhum arquivo escolhido</span>
-              </div>
-            </div>
-
-            <div className="mb-2">
-              <label className="mb-1 block text-xs font-semibold uppercase text-gray-600">
-                COR DO TÍTULO
-              </label>
-              <label className="relative inline-block h-7 w-7 cursor-pointer overflow-hidden rounded border border-gray-300">
-                <div 
-                  className="h-full w-full" 
-                  style={{ backgroundColor: corTitulo }}
-                />
-                <input 
-                  type="color" 
-                  value={corTitulo} 
-                  onChange={(e) => setCorTitulo(e.target.value)}
-                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                />
-              </label>
-            </div>
-
-            <div className="mb-2">
-              <label className="mb-1 block text-xs font-semibold uppercase text-gray-600">
-                COR DO PREÇO
-              </label>
-              <label className="relative inline-block h-7 w-7 cursor-pointer overflow-hidden rounded border border-gray-300">
-                <div 
-                  className="h-full w-full" 
-                  style={{ backgroundColor: corPreco }}
-                />
-                <input 
-                  type="color" 
-                  value={corPreco} 
-                  onChange={(e) => setCorPreco(e.target.value)}
-                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                />
-              </label>
-            </div>
-
-            <button className="mb-3 rounded bg-[#1976D2] px-6 py-2 text-sm font-bold text-white hover:bg-blue-700">
-              Salvar
-            </button>
-
-            <div className="rounded border border-gray-200 p-2">
-              <img src="https://via.placeholder.com/300x500/0088cc/ffffff?text=Template+Story" alt="Template Stories" className="w-full rounded" />
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-lg border border-gray-200 bg-white">
-          <div className="border-b border-gray-200 px-4 py-3">
-            <h4 className="text-sm font-semibold text-gray-900">Template Feed (1:1):</h4>
-          </div>
-          <div className="p-4">
-            <div className="mb-5 rounded bg-[#E0F7FA] px-3 py-2 text-center text-xs font-semibold text-[#00ACC1]">
-              CLIQUE AQUI para editar esse template no CANVA.
-            </div>
-
-            <div className="mb-8">
-              <label className="grid grid-cols-[16px_1fr] gap-2 text-sm text-gray-700 cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  checked={ativarFeedTelegram}
-                  onChange={(e) => setAtivarFeedTelegram(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#1976D2] focus:ring-[#1976D2]" 
-                />
-                <span>Ativar Template no Feed do Telegram</span>
-              </label>
-            </div>
-
-            <div className="mb-8">
-              <label className="mb-8 block text-xs font-semibold uppercase text-gray-600">
-                ESCOLHA UM ARQUIVO
-              </label>
-              <div className="flex gap-2">
-                <button className="rounded border border-gray-300 px-3 py-1.5 text-xs hover:bg-gray-50">
-                  Escolher arquivo
-                </button>
-                <span className="py-1.5 text-xs text-gray-500">Nenhum arquivo escolhido</span>
-              </div>
-            </div>
-
-            <button className="mb-8 rounded bg-[#1976D2] px-6 py-2 text-sm font-bold text-white hover:bg-blue-700">
-              Salvar
-            </button>
-
-            <div className="rounded border border-gray-200 p-2">
-              <img src="https://via.placeholder.com/300x300/0088cc/ffffff?text=Template+Feed" alt="Template Feed" className="w-full rounded" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="col-span-full mt-6 text-center text-xs text-gray-400">
-        © 2026
       </div>
     </>
   )
