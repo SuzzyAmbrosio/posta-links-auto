@@ -359,10 +359,7 @@ export default function CanaisGruposPage() {
                         {channel.isActive? "ATIVO" : "INATIVO"}
                       </button>
                     </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <span className="text-gray-600">Produtos:</span>
-                      <span className="font-semibold text-gray-900">{channel.products}</span>
-                    </div>
+                    
                     <div className="flex items-center gap-2 text-sm">
                       <span className="text-gray-600">Intervalo:</span>
                       <span className="font-semibold text-gray-900">{channel.interval? `${channel.interval}min` : "N/A"}</span>
