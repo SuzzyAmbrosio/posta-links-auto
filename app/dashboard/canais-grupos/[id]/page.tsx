@@ -1,8 +1,10 @@
 "use client"
 
+import { useEffect, useState } from "react"
+import { useSession } from "next-auth/react"
 import { useParams, useSearchParams } from "next/navigation"
-import { toast } from "sonner"
 import Link from "next/link"
+import { toast } from "sonner"
 import { 
   Globe, Send, Layout, Bot, Monitor, Instagram, Calendar, MessageSquare, Save, Wand2, MessageCircle,
   ShoppingBag, Package, Heart, Shirt, Tag, FileText, Users, Video, Check, Search, Link as LinkIcon,
