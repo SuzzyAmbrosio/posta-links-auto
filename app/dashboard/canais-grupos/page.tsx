@@ -326,9 +326,13 @@ export default function CanaisGruposPage() {
               <div className="flex items-start gap-4">
                 <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-gray-100">
                   {channel.type === "telegram"? (
-                    <Send size={32} className="text-blue-600" />
+                    <img
+                      src={channel?.avatar || grupoData.foto}
+                      alt={channel?.name || grupoData.nome}
+                      className="h-10 w-10 rounded-full object-cover"
+                    />
                   ) : (
-                    <MessageCircle size={32} className="text-green-600" />
+                    <Hash size={24} className="text-gray-600" />
                   )}
                 </div>
 

@@ -566,7 +566,7 @@ function EditarGrupoTab({ channel, loadChannel }: any) {
   const [name, setName] = useState("")
   const [avatar, setAvatar] = useState("")
   const [interval, setInterval] = useState("")
-  const [isActive, setIsActive] = useState(false) // COMEÇA FALSE
+  const [isActive, setIsActive] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const params = useParams()
@@ -574,15 +574,15 @@ function EditarGrupoTab({ channel, loadChannel }: any) {
   const id = params.id as string
   const type = searchParams.get("type") as "telegram" | "whatsapp"
 
-  // SINCRONIZA COM OS DADOS DO CANAL QUANDO ABRE O MODAL
+  // SINCRONIZA SEMPRE QUE ABRIR O MODAL
   useEffect(() => {
-    if (channel && modalOpen) {
+    if (channel) {
       setName(channel.name || "")
       setAvatar(channel.avatar || "")
       setInterval(channel.interval?.toString() || "")
-      setIsActive(channel.isActive || false)
+      setIsActive(channel.isActive?? false)
     }
-  }, [channel, modalOpen])
+  }, [channel])
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -614,14 +614,14 @@ function EditarGrupoTab({ channel, loadChannel }: any) {
           name,
           avatar,
           interval: interval? parseInt(interval) : null,
-          isActive // AGORA MANDA O VALOR REAL
+          isActive
         })
       })
       if (!res.ok) throw new Error("Erro ao salvar")
-      await res.json()
+      const updated = await res.json()
       toast.success("Salvo com sucesso!")
       setModalOpen(false)
-      await loadChannel() // ESPERA RECARREGAR
+      await loadChannel()
     } catch (e: any) {
       toast.error(e.message)
     } finally {
@@ -643,7 +643,7 @@ function EditarGrupoTab({ channel, loadChannel }: any) {
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-gray-900">{channel?.name || "Carregando..."}</h3>
             <p className="text-sm text-gray-500">
-              Status: <span className={channel?.isActive? "text-green-600 font-semibold" : "text-gray-500"}>
+              Status: <span className={channel?.isActive? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>
                 {channel?.isActive? "Ativo" : "Inativo"}
               </span>
             </p>
@@ -662,7 +662,6 @@ function EditarGrupoTab({ channel, loadChannel }: any) {
         </button>
       </div>
 
-      {/* MODAL/POPUP */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-md rounded-lg bg-white shadow-xl">
@@ -722,19 +721,18 @@ function EditarGrupoTab({ channel, loadChannel }: any) {
                 </p>
               </div>
 
-              {/* CHECKBOX CORRIGIDO - QUADRADO À ESQUERDA */}
-              <div className="flex items-center gap-2">
+              {/* CHECKBOX COLADO NA ESQUERDA */}
+              <label className="flex cursor-pointer items-center gap-2">
                 <input
                   type="checkbox"
-                  id="ativo-modal"
                   checked={isActive}
                   onChange={(e) => setIsActive(e.target.checked)}
                   className="h-4 w-4 rounded border-gray-300 text-[#1976D2] focus:ring-[#1976D2]"
                 />
-                <label htmlFor="ativo-modal" className="text-sm font-medium text-gray-700 cursor-pointer">
+                <span className="text-sm font-medium text-gray-700">
                   Postagem automática ativa
-                </label>
-              </div>
+                </span>
+              </label>
 
               <div className="flex gap-2 pt-2">
                 <button
