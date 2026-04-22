@@ -31,30 +31,31 @@ export async function DELETE(
 return NextResponse.json(updated)
 }
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
+  const { id } = await params // TEM QUE DAR AWAIT
   const { type, name, avatar, interval, isActive } = await req.json()
-  const { id } = params
 
-  // Atualiza na tabela principal
   if (type === "telegram") {
     await prisma.telegramChannel.update({
       where: { id },
       data: {
         name,
-        avatar, // SALVA A FOTO
+        avatar,
         interval,
         isActive
       }
     })
 
-    // Atualiza também na tabela Group se existir
     await prisma.group.updateMany({
       where: {
         userId: session.user.id,
-        telegramChatId: id // ou o campo que relaciona
+        telegramChatId: id
       },
       data: {
         name,
@@ -66,17 +67,16 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       where: { id },
       data: {
         name,
-        avatar, // SALVA A FOTO
+        avatar,
         interval,
         isActive
       }
     })
 
-    // Atualiza também na tabela Group se existir
     await prisma.group.updateMany({
       where: {
         userId: session.user.id,
-        whatsappGroupId: id // ou o campo que relaciona
+        whatsappGroupId: id
       },
       data: {
         name,
@@ -85,7 +85,6 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     })
   }
 
-  // Retorna o registro atualizado
   const updated = type === "telegram"
    ? await prisma.telegramChannel.findUnique({ where: { id } })
     : await prisma.whatsappGroup.findUnique({ where: { id } })
