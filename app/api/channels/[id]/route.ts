@@ -38,7 +38,7 @@ export async function PATCH(
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-  const { id } = await params // TEM QUE DAR AWAIT
+  const { id } = await params
   const { type, name, avatar, interval, isActive } = await req.json()
 
   if (type === "telegram") {
@@ -48,17 +48,6 @@ export async function PATCH(
         name,
         avatar,
         interval,
-        isActive
-      }
-    })
-
-    await prisma.group.updateMany({
-      where: {
-        userId: session.user.id,
-        telegramChatId: id
-      },
-      data: {
-        name,
         isActive
       }
     })
@@ -72,18 +61,10 @@ export async function PATCH(
         isActive
       }
     })
-
-    await prisma.group.updateMany({
-      where: {
-        userId: session.user.id,
-        whatsappGroupId: id
-      },
-      data: {
-        name,
-        isActive
-      }
-    })
   }
+
+  // Remove o updateMany do Group porque não tem relação direta
+  // Se quiser salvar na tabela Group também, precisa ter internalCode ou outro campo pra identificar
 
   const updated = type === "telegram"
    ? await prisma.telegramChannel.findUnique({ where: { id } })
