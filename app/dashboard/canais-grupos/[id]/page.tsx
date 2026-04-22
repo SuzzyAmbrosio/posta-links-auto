@@ -617,9 +617,10 @@ function EditarGrupoTab({ channel, loadChannel }: any) {
         })
       })
       if (!res.ok) throw new Error("Erro ao salvar")
+      const updatedChannel = await res.json()
       toast.success("Salvo com sucesso!")
       setModalOpen(false)
-      loadChannel()
+      loadChannel() // Recarrega o header
     } catch (e: any) {
       toast.error(e.message)
     } finally {
@@ -726,7 +727,7 @@ function EditarGrupoTab({ channel, loadChannel }: any) {
                   id="ativo-modal"
                   checked={isActive}
                   onChange={(e) => setIsActive(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300"
+                  className="h-4 w-4 rounded border-gray-300 text-[#1976D2] focus:ring-[#1976D2]"
                 />
                 <label htmlFor="ativo-modal" className="text-sm font-medium text-gray-700">
                   Postagem automática ativa

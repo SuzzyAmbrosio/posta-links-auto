@@ -24,7 +24,11 @@ export async function DELETE(
     })
   }
 
-  return NextResponse.json({ success: true })
+  const updated = type === "telegram" 
+  ? await prisma.telegramChannel.findUnique({ where: { id } })
+  : await prisma.whatsappGroup.findUnique({ where: { id } })
+
+return NextResponse.json(updated)
 }
 
 export async function PATCH(
