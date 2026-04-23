@@ -75,18 +75,18 @@ export default function EditarCanalPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="w-full bg-gray-50">
       <Toaster richColors />
 
       {userPlan === "INICIANTE" && (
-        <div className="mx-4 mt-4 rounded-lg bg-[#FFF8E1] px-5 py-3 text-center">
+        <div className="px-4 mt-4 rounded-lg bg-[#FFF8E1] px-5 py-3 text-center">
           <button className="inline-flex items-center rounded-md bg-[#FFC107] px-4 py-2 text- font-bold text-slate-900 hover:bg-amber-400">
             Upgrade Agora 🚀
           </button>
         </div>
       )}
 
-      <div className="mx-4 mt-4 flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3">
+      <div className="px-4 mt-4 flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3">
         <Link href="/dashboard/canais-grupos" className="rounded-md p-2 hover:bg-gray-100">
           <ArrowLeft size={20} />
         </Link>
@@ -106,7 +106,7 @@ export default function EditarCanalPage() {
           </button>
         </div>
 
-      <div className="mx-4 mt-4 rounded-lg border border-gray-200 bg-white">
+      <div className="px-4 mt-4 rounded-lg border border-gray-200 bg-white">
         <div className="flex flex-wrap gap-2 border-b border-gray-200 px-4 py-3">
           {tabsRow1.map((tab) => {
             const Icon = tab.icon
@@ -148,7 +148,7 @@ export default function EditarCanalPage() {
         </div>
       </div>
 
-      <div className="mx-4 mt-4 space-y-4 pb-8">
+      <div className="px-4 mt-4 space-y-4 pb-8">
         {activeTab === "geral" && <GeralTab />}
         {activeTab === "editar" && <EditarGrupoTab channel={channel} loadChannel={loadChannel} />}
         {activeTab === "whatsapp" && <WhatsAppTab />}
