@@ -14,20 +14,6 @@ import {
   ArrowLeft, Eye, Hash, Settings, HelpCircle, CheckIcon, Edit
 } from "lucide-react"
 
-const grupoData = {
-  id: "32908",
-  nome: "Viciados na Shoppee",
-  foto: "https://via.placeholder.com/80",
-  whatsappConectado: false,
-  instagram: {
-    username: "viciados.na.shoppee",
-    nome: "Viciados na Shopee",
-    seguidores: 110,
-    seguindo: 92,
-    posts: 29,
-    conectado: true
-  }
-}
 
 const tabsRow1 = [
   { id: "geral", label: "Geral", icon: Globe },
@@ -105,18 +91,20 @@ export default function EditarCanalPage() {
           <ArrowLeft size={20} />
         </Link>
         <img
-          src={channel?.avatar || grupoData.foto}
-          alt={channel?.name || grupoData.nome}
+          src={channel?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(channel?.name || 'C')}&background=random`}
+          alt={channel?.name || 'Canal'}
           className="h-10 w-10 rounded-full object-cover"
         />
         <div className="flex items-center gap-2">
-          <span className="text- font-semibold text-gray-900">Editar: {channel?.name || grupoData.nome}</span>
-          <button className="flex items-center gap-1 rounded bg-[#1976D2] px-2.5 py-1 text- font-semibold text-white hover:bg-blue-700">
+          <span className="text- font-semibold text-gray-900">Editar: {channel?.name || 'Carregando...'}</span>
+          <button 
+            onClick={loadChannel}
+            className="flex items-center gap-1 rounded bg-[#1976D2] px-2.5 py-1 text- font-semibold text-white hover:bg-blue-700"
+          >
             <RefreshCw size={12} />
             Atualizar
           </button>
         </div>
-      </div>
 
       <div className="mx-4 mt-4 rounded-lg border border-gray-200 bg-white">
         <div className="flex flex-wrap gap-2 border-b border-gray-200 px-4 py-3">
@@ -180,11 +168,54 @@ export default function EditarCanalPage() {
   )
 }
 
-// ABA GERAL - VOLTOU PRO QUE ERA ANTES
-function GeralTab() {
+function GeralTab({ channel, loadChannel }: any) {
+  const params = useParams()
+  const searchParams = useSearchParams()
+  const id = params.id as string
+  const type = searchParams.get("type") as "telegram" | "whatsapp"
+
+  // States da aba Configuração
+  const [interval, setInterval] = useState("")
+  const [isActive, setIsActive] = useState(false)
+  const [postEmLoop, setPostEmLoop] = useState(false)
+  const [horaInicio, setHoraInicio] = useState("")
+  const [horaFim, setHoraFim] = useState("")
+  const [saving, setSaving] = useState(false)
+  
+  // States dos templates
   const [corTitulo, setCorTitulo] = useState("#000000")
   const [corPreco, setCorPreco] = useState("#FFFFFF")
   const [ativarFeedTelegram, setAtivarFeedTelegram] = useState(false)
+
+  // Sincroniza quando channel carregar
+  useEffect(() => {
+    if (channel) {
+      setInterval(channel.interval?.toString() || "")
+      setIsActive(channel.isActive || false)
+    }
+  }, [channel])
+
+  async function salvarConfig() {
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/channels/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type,
+          interval: interval? parseInt(interval) : null,
+          isActive
+        })
+      })
+      if (!res.ok) throw new Error("Erro ao salvar")
+      toast.success("Configuração salva!")
+      await loadChannel()
+    } catch (e: any) {
+      toast.error(e.message)
+    } finally {
+      setSaving(false)
+    }
+  }
 
   return (
     <>
@@ -301,33 +332,75 @@ function GeralTab() {
               </label>
               <div className="space-y-2">
                 <label className="grid grid-cols-[16px_1fr] gap-2 text-sm text-gray-700 cursor-pointer">
-                  <input type="checkbox" defaultChecked className="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#1976D2] focus:ring-[#1976D2]" />
+                  <input 
+                    type="checkbox" 
+                    checked={isActive}
+                    onChange={(e) => setIsActive(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#1976D2] focus:ring-[#1976D2]" 
+                  />
                   <span>Post automático</span>
                 </label>
                 <label className="grid grid-cols-[16px_1fr] gap-2 text-sm text-gray-700 cursor-pointer">
-                  <input type="checkbox" defaultChecked className="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#1976D2] focus:ring-[#1976D2]" />
+                  <input 
+                    type="checkbox" 
+                    checked={postEmLoop}
+                    onChange={(e) => setPostEmLoop(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#1976D2] focus:ring-[#1976D2]" 
+                  />
                   <span>Post em Loop</span>
                 </label>
               </div>
               <p className="mt-1 text-xs text-gray-500">Repete os produtos ao final da lista.</p>
             </div>
 
-            {[
-              { label: 'POST INTERVALO (MINUTOS)', value: '' },
-              { label: 'HORA INÍCIO', value: '' },
-              { label: 'HORA FIM', value: '' },
-              { label: 'IDIOMA', value: '', sub: 'Título de produtos do AliExpress' },
-              { label: 'MOEDA', value: '', sub: 'Valor de produtos do AliExpress' },
-              { label: 'PAÍS', value: '', sub: 'país para envio (send to)' },
-            ].map((item, i) => (
+            <div className="mb-3.5">
+              <label className="mb-1 block text-xs font-semibold uppercase text-gray-600">
+                POST INTERVALO (MINUTOS)
+              </label>
+              <input
+                type="number"
+                value={interval}
+                onChange={(e) => setInterval(e.target.value)}
+                placeholder="120"
+                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="mb-3.5">
+              <label className="mb-1 block text-xs font-semibold uppercase text-gray-600">
+                HORA INÍCIO
+              </label>
+              <input
+                type="time"
+                value={horaInicio}
+                onChange={(e) => setHoraInicio(e.target.value)}
+                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="mb-3.5">
+              <label className="mb-1 block text-xs font-semibold uppercase text-gray-600">
+                HORA FIM
+              </label>
+              <input
+                type="time"
+                value={horaFim}
+                onChange={(e) => setHoraFim(e.target.value)}
+                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+
+            {['IDIOMA', 'MOEDA', 'PAÍS'].map((label, i) => (
               <div key={i} className="mb-3.5">
                 <label className="mb-1 block text-xs font-semibold uppercase text-gray-600">
-                  {item.label}
+                  {label}
                 </label>
                 <select className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none">
-                  <option>{item.value}</option>
+                  <option></option>
                 </select>
-                {item.sub && <p className="mt-1 text-xs text-gray-500">{item.sub}</p>}
+                {i === 0 && <p className="mt-1 text-xs text-gray-500">Título de produtos do AliExpress</p>}
+                {i === 1 && <p className="mt-1 text-xs text-gray-500">Valor de produtos do AliExpress</p>}
+                {i === 2 && <p className="mt-1 text-xs text-gray-500">país para envio (send to)</p>}
               </div>
             ))}
 
@@ -337,33 +410,36 @@ function GeralTab() {
               </label>
               <div className="space-y-2">
                 {[
-                  { name: "AliExpress", checked: false },
-                  { name: "Amazon", checked: false },
-                  { name: "Magazine Luiza", checked: false },
-                  { name: "Shopee", checked: false },
-                  { name: "Shein", checked: false },
-                  { name: "Natura", checked: false },
-                  { name: "Awin", checked: false },
-                  { name: "Mercado Livre", checked: false },
+                  "AliExpress",
+                  "Amazon",
+                  "Magazine Luiza",
+                  "Shopee",
+                  "Shein",
+                  "Natura",
+                  "Awin",
+                  "Mercado Livre",
                 ].map((loja) => (
-                  <label key={loja.name} className="grid grid-cols-[16px_1fr] gap-2 text-sm text-gray-700 cursor-pointer">
+                  <label key={loja} className="grid grid-cols-[16px_1fr] gap-2 text-sm text-gray-700 cursor-pointer">
                     <input
                       type="checkbox"
-                      defaultChecked={loja.checked}
                       className="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#1976D2] focus:ring-[#1976D2]"
                     />
-                    <span>{loja.name}</span>
+                    <span>{loja}</span>
                   </label>
                 ))}
               </div>
             </div>
 
-            <button className="mt-4 w-full rounded bg-[#1976D2] py-2 text-sm font-bold text-white hover:bg-blue-700">
-              Salvar
+            <button 
+              onClick={salvarConfig}
+              disabled={saving}
+              className="mt-4 w-full rounded bg-[#1976D2] py-2 text-sm font-bold text-white hover:bg-blue-700 disabled:bg-gray-300"
+            >
+              {saving? "Salvando..." : "Salvar"}
             </button>
           </div>
 
-          {/* CARD CUPONS */}
+          {/* CARD CUPONS - mantém igual */}
           <div className="rounded-lg border border-gray-200 bg-white">
             <div className="rounded-t-lg bg-[#29B6F6] px-4 py-2.5">
               <h4 className="text-sm font-semibold text-white">Cupons</h4>
@@ -440,7 +516,7 @@ function GeralTab() {
         </div>
       </div>
 
-      {/* TEMPLATES ABAIXO DOS 2 CARDS PRINCIPAIS */}
+      {/* TEMPLATES - mantém igual */}
       <div className="grid items-start gap-4 lg:grid-cols-2">
         <div className="rounded-lg border border-gray-200 bg-white">
           <div className="border-b border-gray-200 px-4 py-3">
