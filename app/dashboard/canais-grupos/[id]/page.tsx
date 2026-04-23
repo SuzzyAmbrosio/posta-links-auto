@@ -91,12 +91,12 @@ export default function EditarCanalPage() {
           <ArrowLeft size={20} />
         </Link>
         <img
-          src={channel?.avatar || grupoData.foto}
-          alt={channel?.name || grupoData.nome}
+          src={channel?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(channel?.name || 'C')}&background=random`}
+          alt={channel?.name || 'Canal'}
           className="h-10 w-10 rounded-full object-cover"
         />
         <div className="flex items-center gap-2">
-          <span className="text- font-semibold text-gray-900">Editar: {channel?.name || grupoData.nome}</span>
+          <span className="text-base font-semibold text-gray-900">Editar: {channel?.name || 'Carregando...'}</span>
           <button className="flex items-center gap-1 rounded bg-[#1976D2] px-2.5 py-1 text- font-semibold text-white hover:bg-blue-700">
             <RefreshCw size={12} />
             Atualizar
