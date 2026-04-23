@@ -722,7 +722,7 @@ function EditarGrupoTab({ channel, loadChannel }: any) {
               </div>
 
               {/* CHECKBOX COLADO NA ESQUERDA */}
-              <label className="flex cursor-pointer items-center gap-2">
+              <label className="flex items-center justify-between rounded-lg border p-3">
                 <input
                   type="checkbox"
                   checked={isActive}
@@ -730,7 +730,7 @@ function EditarGrupoTab({ channel, loadChannel }: any) {
                   className="h-4 w-4 rounded border-gray-300 text-[#1976D2] focus:ring-[#1976D2]"
                 />
                 <span className="text-sm font-medium text-gray-700">
-                  Postagem automática ativa
+                  Postagem automática
                 </span>
               </label>
 
