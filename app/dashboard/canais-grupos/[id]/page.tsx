@@ -215,7 +215,7 @@ function GeralTab({ channel, loadChannel }: any) {
     }
   }
 
-  return (
+   return (
     <>
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-lg border border-gray-200 bg-white p-4">
@@ -286,10 +286,10 @@ function GeralTab({ channel, loadChannel }: any) {
               <label className="mb-1 block text-xs font-semibold uppercase text-gray-600">
                 {label}
               </label>
-              <input
-                type="text"
-                defaultValue={i === 0 || i === 1? '' : i === 2? '' : ''}
-                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+              <input 
+                type="text" 
+                defaultValue={i === 0 || i === 1? '' : i === 2? '' : ''} 
+                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" 
               />
             </div>
           ))}
@@ -314,9 +314,9 @@ function GeralTab({ channel, loadChannel }: any) {
             <label className="mb-3 block text-xs font-semibold uppercase text-gray-600">
               AGENDAMENTO
             </label>
-            <input
-              type="datetime-local"
-              className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            <input 
+              type="datetime-local" 
+              className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" 
             />
             <p className="mt-3 text-xs text-gray-500">Selecione a Data e Hora</p>
           </div>
