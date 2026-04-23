@@ -218,7 +218,7 @@ function GeralTab({ channel, loadChannel }: any) {
    return (
     <>
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
+        <div className="mx-auto max-w-7xl px-4 mt-4 space-y-4 pb-8">
           <div className="mb-9">
             <label className="mb-3 block text-xs font-semibold uppercase text-gray-600">
               LINK DO PRODUTO:
