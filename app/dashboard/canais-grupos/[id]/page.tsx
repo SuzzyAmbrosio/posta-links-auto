@@ -165,6 +165,7 @@ export default function EditarCanalPage() {
         {activeTab === "colaboradores" && <ColaboradoresTab />}
       </div>
     </div>
+  </div>
   )
 }
 
