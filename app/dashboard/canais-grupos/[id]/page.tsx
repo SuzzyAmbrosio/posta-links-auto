@@ -834,7 +834,7 @@ function EditarGrupoTab({ channel, loadChannel }: any) {
   )
 }
 
-function InstagramTab() {
+function InstagramTab({ channel }: any) {
   const [postAuto, setPostAuto] = useState(false)
   const [desativarComentario, setDesativarComentario] = useState(false)
   const [agendamentoAtivo, setAgendamentoAtivo] = useState(false)
@@ -855,15 +855,25 @@ function InstagramTab() {
     setHorarios(prev => ({...prev, [hora]:!prev[hora] }))
   }
 
+  // Dados do Instagram - troque por API real depois
+  const instagramData = {
+    username: channel?.name?.toLowerCase().replace(/\s+/g, '.') || "usuario",
+    nome: channel?.name || "Canal",
+    seguidores: 0,
+    seguindo: 0,
+    posts: 0,
+    conectado: false
+  }
+
   return (
     <>
-      <div className="rounded-lg bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#F77737] px-5 py-4 text-white">
+      <div className="rounded-lg bg-gradient-to-r from-[#833AB4] via-[#FD1D] to-[#F77737] px-5 py-4 text-white">
         <div className="flex items-center gap-2">
           <Instagram size={20} />
           <div>
             <h3 className="text-base font-bold">Instagram</h3>
             <p className="mt-1 text-xs text-white/90">
-              Configurações da conta @{grupoData.instagram.username}
+              Configurações da conta @{instagramData.username}
             </p>
           </div>
         </div>
@@ -880,33 +890,36 @@ function InstagramTab() {
             <div className="p-4">
               <div className="mb-4 rounded-lg bg-[#FFF3F8] p-3">
                 <div className="flex items-center gap-3">
-                  <img src={grupoData.foto} alt={grupoData.instagram.nome} className="h-12 w-12 rounded-full object-cover" />
+                  <img 
+                    src={channel?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(instagramData.nome)}`}
+                    alt={instagramData.nome} 
+                    className="h-12 w-12 rounded-full object-cover" 
+                  />
                   <div>
-                    <p className="text-sm font-semibold text-gray-900">{grupoData.instagram.username}</p>
-                    <p className="text-xs text-gray-600">{grupoData.instagram.nome}</p>
+                    <p className="text-sm font-semibold text-gray-900">{instagramData.username}</p>
+                    <p className="text-xs text-gray-600">{instagramData.nome}</p>
                   </div>
                 </div>
               </div>
 
               <div className="mb-3 grid grid-cols-3 gap-2 text-center">
                 <div>
-                  <p className="text-lg font-bold text-gray-900">{grupoData.instagram.posts}</p>
+                  <p className="text-lg font-bold text-gray-900">{instagramData.posts}</p>
                   <p className="text-xs text-gray-500">Mídias</p>
                 </div>
                 <div>
-                  <p className="text-lg font-bold text-gray-900">{grupoData.instagram.seguidores}</p>
+                  <p className="text-lg font-bold text-gray-900">{instagramData.seguidores}</p>
                   <p className="text-xs text-gray-500">Seguidores</p>
                 </div>
                 <div>
-                  <p className="text-lg font-bold text-gray-900">{grupoData.instagram.seguindo}</p>
+                  <p className="text-lg font-bold text-gray-900">{instagramData.seguindo}</p>
                   <p className="text-xs text-gray-500">Seguindo</p>
                 </div>
               </div>
 
-              {/* BOTÃO COM BORDA COMPLETA E ÍCONE */}
-              <button className="flex w-full items-center justify-center gap-2 rounded border border-[#E53935] py-2 text-sm font-semibold text-[#E53935] hover:bg-red-50">
+              <button className="flex w-full items-center justify-center gap-2 rounded border-[#E53935] py-2 text-sm font-semibold text-[#E53935] hover:bg-red-50">
                 <Unlink size={14} />
-                Desconectar Instagram
+                {instagramData.conectado? "Desconectar Instagram" : "Conectar Instagram"}
               </button>
             </div>
           </div>
@@ -947,7 +960,7 @@ function InstagramTab() {
                   </label>
                   <div className="h-8 w-8 rounded border border-gray-300 bg-white"></div>
                 </div>
-                <button className="ml-auto rounded bg-gradient-to-r from-[#833AB4] to-[#FD1D1D] px-6 py-2 text-sm font-bold text-white">
+                <button className="ml-auto rounded bg-gradient-to-r from-[#833AB4] to-[#FD1D] px-6 py-2 text-sm font-bold text-white">
                   Salvar
                 </button>
               </div>
@@ -1068,7 +1081,7 @@ function InstagramTab() {
                       onClick={() => toggleDia(dia.key)}
                       className={`flex w-full items-center justify-start gap-1.5 rounded px-2 py-1.5 text-xs font-medium ${
                         diasSemana[dia.key as keyof typeof diasSemana]
-                         ? "bg-[#29B6F6] text-white"
+                        ? "bg-[#29B6F6] text-white"
                           : "bg-gray-100 text-gray-600"
                       }`}
                     >
@@ -1091,7 +1104,7 @@ function InstagramTab() {
                       onClick={() => toggleHora(hora)}
                       className={`flex w-full items-center justify-start gap-1 rounded px-2 py-1.5 text-xs font-medium ${
                         horarios[hora]
-                         ? "bg-[#29B6F6] text-white"
+                        ? "bg-[#29B6F6] text-white"
                           : "bg-gray-100 text-gray-400"
                       }`}
                     >
@@ -1102,7 +1115,6 @@ function InstagramTab() {
                 </div>
               </div>
 
-              {/* TOGGLE ATIVO? ACIMA DO SALVAR AGENDAMENTO */}
               <div className="mb-3 flex items-center gap-2">
                 <button
                   onClick={() => setAgendamentoAtivo(!agendamentoAtivo)}
