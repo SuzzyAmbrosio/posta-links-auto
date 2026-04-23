@@ -722,7 +722,7 @@ function EditarGrupoTab({ channel, loadChannel }: any) {
               </div>
 
               {/* CHECKBOX COLADO NA ESQUERDA */}
-              <label className="flex items-center justify-between rounded-lg border p-3">
+              <label className="grid grid-cols-[16px_1fr] gap-2 text-sm text-gray-700 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={isActive}
