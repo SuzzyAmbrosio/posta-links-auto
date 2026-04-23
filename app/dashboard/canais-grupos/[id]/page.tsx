@@ -74,40 +74,37 @@ export default function EditarCanalPage() {
     }
   }
 
-  return (
+   return (
     <div className="min-h-screen bg-gray-50">
       <Toaster richColors />
 
       {userPlan === "INICIANTE" && (
-        <div className="mx-auto max-w-7xl px-4 mt-4 rounded-lg bg-[#FFF8E1] py-3 text-center">
-          <button className="inline-flex items-center rounded-md bg-[#FFC107] px-4 py-2 text-sm font-bold text-slate-900 hover:bg-amber-400">
+        <div className="mx-4 mt-4 rounded-lg bg-[#FFF8E1] px-5 py-3 text-center">
+          <button className="inline-flex items-center rounded-md bg-[#FFC107] px-4 py-2 text- font-bold text-slate-900 hover:bg-amber-400">
             Upgrade Agora 🚀
           </button>
         </div>
       )}
 
-      <div className="mx-auto max-w-7xl px-4 mt-4 flex items-center gap-3 rounded-lg border border-gray-200 bg-white py-3">
+      <div className="mx-4 mt-4 flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3">
         <Link href="/dashboard/canais-grupos" className="rounded-md p-2 hover:bg-gray-100">
           <ArrowLeft size={20} />
         </Link>
         <img
-          src={channel?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(channel?.name || 'C')}&background=random`}
-          alt={channel?.name || 'Canal'}
+          src={channel?.avatar || grupoData.foto}
+          alt={channel?.name || grupoData.nome}
           className="h-10 w-10 rounded-full object-cover"
         />
         <div className="flex items-center gap-2">
-          <span className="text-base font-semibold text-gray-900">Editar: {channel?.name || 'Carregando...'}</span>
-          <button 
-            onClick={loadChannel}
-            className="flex items-center gap-1 rounded bg-[#1976D2] px-2.5 py-1 text-xs font-semibold text-white hover:bg-blue-700"
-          >
+          <span className="text- font-semibold text-gray-900">Editar: {channel?.name || grupoData.nome}</span>
+          <button className="flex items-center gap-1 rounded bg-[#1976D2] px-2.5 py-1 text- font-semibold text-white hover:bg-blue-700">
             <RefreshCw size={12} />
             Atualizar
           </button>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 mt-4 rounded-lg border border-gray-200 bg-white">
+      <div className="mx-4 mt-4 rounded-lg border border-gray-200 bg-white">
         <div className="flex flex-wrap gap-2 border-b border-gray-200 px-4 py-3">
           {tabsRow1.map((tab) => {
             const Icon = tab.icon
@@ -115,9 +112,9 @@ export default function EditarCanalPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition ${
+                className={`flex items-center gap-2 rounded-md px-4 py-2 text- font-medium transition ${
                   activeTab === tab.id
-                  ? "bg-[#1976D2] text-white"
+                   ? "bg-[#1976D2] text-white"
                     : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
@@ -135,9 +132,9 @@ export default function EditarCanalPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition ${
+                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text- font-medium transition ${
                   activeTab === tab.id
-                  ? "bg-[#1976D2] text-white"
+                   ? "bg-[#1976D2] text-white"
                     : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
