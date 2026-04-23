@@ -31,6 +31,7 @@ export async function DELETE(
 return NextResponse.json(updated)
 }
 
+// GET já tá ok
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -43,31 +44,46 @@ export async function GET(
   const type = searchParams.get("type")
 
   const channel = type === "telegram"
-    ? await prisma.telegramChannel.findUnique({
-        where: { id },
-        select: {
-          id: true,
-          name: true,
-          avatar: true, // GARANTE QUE VEM
-          interval: true,
-          isActive: true,
-          chatId: true,
-          createdAt: true,
-          updatedAt: true
-        }
-      })
-    : await prisma.whatsappGroup.findUnique({
-        where: { id },
-        select: {
-          id: true,
-          name: true,
-          avatar: true, // GARANTE QUE VEM
-          interval: true,
-          isActive: true,
-          groupId: true,
-          createdAt: true,
-          updatedAt: true
-        }
-      })
+   ? await prisma.telegramChannel.findUnique({ where: { id } })
+    : await prisma.whatsappGroup.findUnique({ where: { id } })
+
   return NextResponse.json(channel)
+}
+
+// ESSA FUNÇÃO TEM QUE EXISTIR - É ELA QUE TÁ DANDO 405
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await getServerSession(authOptions)
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+  const { id } = await params
+  const { type, name, avatar, interval, isActive } = await req.json()
+
+  let updated
+
+  if (type === "telegram") {
+    updated = await prisma.telegramChannel.update({
+      where: { id, userId: session.user.id }, // adiciona userId pra segurança
+      data: {
+        name,
+        avatar,
+        interval,
+        isActive
+      }
+    })
+  } else {
+    updated = await prisma.whatsappGroup.update({
+      where: { id, userId: session.user.id }, // adiciona userId pra segurança
+      data: {
+        name,
+        avatar,
+        interval,
+        isActive
+      }
+    })
+  }
+
+  return NextResponse.json(updated)
 }
