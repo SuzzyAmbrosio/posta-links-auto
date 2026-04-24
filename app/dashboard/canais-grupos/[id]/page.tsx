@@ -217,8 +217,8 @@ function GeralTab({ channel, loadChannel }: any) {
 
    return (
     <>
-      <div className="grid gap-4 lg:grid-cols-2">
-        <div className="mx-full w-full rounded-lg border border-gray-200 bg-white p-4">
+      <div className="grid w-full gap-4 lg:grid-cols-2 xl:grid-cols-2">
+        <div className="w-full rounded-lg border border-gray-200 bg-white p-4">
           <div className="mb-9">
             <label className="mb-3 block text-xs font-semibold uppercase text-gray-600">
               LINK DO PRODUTO:
@@ -322,8 +322,8 @@ function GeralTab({ channel, loadChannel }: any) {
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="rounded-lg border border-gray-200 bg-white p-4">
+        <div className="w-full space-y-4">
+          <div className="w-full rounded-lg border border-gray-200 bg-white p-4">
             <div className="mb-3.5">
               <label className="mb-1.5 block text-xs font-semibold uppercase text-gray-600">
                 CONFIGURAÇÃO:
@@ -438,7 +438,7 @@ function GeralTab({ channel, loadChannel }: any) {
           </div>
 
           {/* CARD CUPONS - mantém igual */}
-          <div className="rounded-lg border border-gray-200 bg-white">
+          <div className="w-full rounded-lg border border-gray-200 bg-white">
             <div className="rounded-t-lg bg-[#29B6F6] px-4 py-2.5">
               <h4 className="text-sm font-semibold text-white">Cupons</h4>
             </div>
@@ -515,8 +515,8 @@ function GeralTab({ channel, loadChannel }: any) {
       </div>
 
       {/* TEMPLATES - mantém igual */}
-      <div className="grid items-start gap-4 lg:grid-cols-2">
-        <div className="rounded-lg border border-gray-200 bg-white">
+      <div className="grid w-full items-start gap-4 lg:grid-cols-2 mt-4">
+        <div className="w-full rounded-lg border border-gray-200 bg-white">
           <div className="border-b border-gray-200 px-4 py-3">
             <h4 className="text-sm font-semibold text-gray-900">Template Stories (16:9):</h4>
           </div>
@@ -705,7 +705,7 @@ function EditarGrupoTab({ channel, loadChannel }: any) {
 
   return (
     <>
-      <div className="rounded-lg border border-gray-200 bg-white p-6">
+      <div className="w-full rounded-lg border border-gray-200 bg-white p-6">
         <div className="mb-6 flex items-center gap-4">
           <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-gray-100">
             {channel?.avatar? (
@@ -864,7 +864,7 @@ function InstagramTab({ channel }: any) {
 
   return (
     <>
-      <div className="rounded-lg bg-gradient-to-r from-[#833AB4] via-[#FD1D] to-[#F77737] px-5 py-4 text-white">
+      <div className="w-full rounded-lg bg-gradient-to-r from-[#833AB4] via-[#FD1D] to-[#F77737] px-5 py-4 text-white">
         <div className="flex items-center gap-2">
           <Instagram size={20} />
           <div>
@@ -876,7 +876,7 @@ function InstagramTab({ channel }: any) {
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[3fr_2fr]">
+      <div className="grid w-full gap-4 lg:grid-cols-[3fr_2fr]">
         <div className="space-y-4">
           <div className="rounded-lg border border-gray-200 bg-white">
             <div className="flex items-center gap-2 border-b border-gray-200 px-4 py-3">
@@ -921,7 +921,7 @@ function InstagramTab({ channel }: any) {
             </div>
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-white">
+          <div className="w-full rounded-lg border border-gray-200 bg-white">
             <div className="flex items-center gap-2 border-b border-gray-200 px-4 py-3">
               <ImageIcon size={16} className="text-gray-600" />
               <h4 className="text-sm font-semibold text-gray-900">Template IG Story (16:9)</h4>
@@ -1039,8 +1039,8 @@ function InstagramTab({ channel }: any) {
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="rounded-lg border border-gray-200 bg-white">
+        <div className="w-full space-y-4">
+          <div className="w-full rounded-lg border border-gray-200 bg-white">
             <div className="flex items-center gap-2 border-b border-gray-200 px-4 py-3">
               <TrendingUp size={16} className="text-gray-600" />
               <h4 className="text-sm font-semibold text-gray-900">Crescimento de Seguidores</h4>
@@ -1131,7 +1131,7 @@ function InstagramTab({ channel }: any) {
             </div>
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-white">
+          <div className="w-full rounded-lg border border-gray-200 bg-white">
             <div className="border-b border-gray-200 px-4 py-3">
               <h4 className="text-xs font-bold uppercase text-gray-600">DICAS</h4>
             </div>
@@ -1175,9 +1175,9 @@ function ShopeeTab() {
   
   return (
     <>
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="w-full grid gap-4 lg:grid-cols-3">
         {/* CARD 1: Add produtos Shopee */}
-        <div className="rounded-lg border border-gray-200 bg-white">
+        <div className="w-full rounded-lg border border-gray-200 bg-white">
           <div className="border-b border-gray-200 px-4 py-3">
             <h4 className="text-sm font-semibold text-gray-900">Add produtos Shopee</h4>
           </div>
@@ -1242,7 +1242,7 @@ function ShopeeTab() {
         </div>
 
         {/* CARD 2: Texto padrão Shopee */}
-        <div className="rounded-lg border border-gray-200 bg-white">
+        <div className="w-full rounded-lg border border-gray-200 bg-white">
           <div className="border-b border-gray-200 px-4 py-3">
             <h4 className="text-sm font-semibold text-gray-900">Texto padrão Shopee</h4>
           </div>
@@ -1284,7 +1284,7 @@ function ShopeeTab() {
         </div>
 
         {/* CARD 3: Importar Produtos em Massa */}
-        <div className="rounded-lg border border-gray-200 bg-white">
+        <div className="w-full rounded-lg border border-gray-200 bg-white">
           <div className="border-b border-gray-200 px-4 py-3">
             <h4 className="text-sm font-semibold text-gray-900">Importar Produtos em Massa</h4>
           </div>
@@ -1321,7 +1321,7 @@ function ShopeeTab() {
       </div>
 
       {/* Filtros */}
-      <div className="mt-4 border-t border-gray-200 pt-4">
+      <div className="w-full mt-4 border-t border-gray-200 pt-4">
         <div className="flex gap-2">
           <input
             type="text"
@@ -1337,7 +1337,7 @@ function ShopeeTab() {
       </div>
 
       {/* Filtros Produtos */}
-      <div className="mt-4 border-t border-gray-200 pt-4">
+      <div className="w-full mt-4 border-t border-gray-200 pt-4">
         <div className="mb-2 flex items-center gap-4">
           <label className="text-xs font-semibold text-gray-700">Produtos</label>
           <div className="flex items-center gap-2">
@@ -1411,7 +1411,7 @@ function TelegramTab() {
   return (
     <>
       {/* Banner Azul Telegram */}
-      <div className="mb-4 rounded-lg bg-gradient-to-r from-[#1C92D2] to-[#00C6FB] px-5 py-4">
+      <div className="w-full mb-4 rounded-lg bg-gradient-to-r from-[#1C92D2] to-[#00C6FB] px-5 py-4">
         <div className="flex items-center gap-2 text-white">
           <Bot size={20} />
           <div>
@@ -1423,9 +1423,9 @@ function TelegramTab() {
 
       <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr]">
         {/* Coluna Esquerda */}
-        <div className="space-y-4">
+        <div className="w-full space-y-4">
           {/* Card Vincular Grupo ou Canal */}
-          <div className="rounded-lg border border-gray-200 bg-white">
+          <div className="w-full rounded-lg border border-gray-200 bg-white">
             <div className="border-b border-gray-200 px-4 py-3">
               <h4 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
                 <Link2 size={16} />
@@ -1460,7 +1460,7 @@ function TelegramTab() {
           </div>
 
           {/* Card Configuração do Bot */}
-          <div className="rounded-lg border border-gray-200 bg-white">
+          <div className="w-full rounded-lg border border-gray-200 bg-white">
             <div className="border-b border-gray-200 px-4 py-3">
               <h4 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
                 <Bot size={16} />
@@ -1616,9 +1616,9 @@ function TelegramTab() {
 
 function LayoutTab() {
   return (
-    <div className="grid items-start gap-4 lg:grid-cols-[2fr_1fr]">
+    <div className="w-full grid items-start gap-4 lg:grid-cols-[2fr_1fr]">
       {/* Coluna Esquerda - Configuração */}
-      <div className="rounded-lg border border-gray-200 bg-white p-4">
+      <div className="w-full rounded-lg border border-gray-200 bg-white p-4">
         <div className="mb-4">
           <label className="mb-1.5 block text-xs font-semibold uppercase text-gray-600">
             Configuração:
@@ -1778,7 +1778,7 @@ function LayoutTab() {
       </div>
 
       {/* Coluna Direita - Dicas de formatação */}
-      <div className="rounded-lg border border-gray-200 bg-white p-4">
+      <div className="w-full rounded-lg border border-gray-200 bg-white p-4">
         <h4 className="mb-3 text-xs font-semibold uppercase text-gray-600">
           Dicas de formatação:
         </h4>
@@ -1840,7 +1840,7 @@ function InstaSchedTab() {
   return (
     <>
       {/* Banner Gradient Laranja/Roxo */}
-      <div className="rounded-lg bg-gradient-to-r from-[#FF6B35] via-[#F7931E] to-[#833AB4] px-5 py-3">
+      <div className="w-full rounded-lg bg-gradient-to-r from-[#FF6B35] via-[#F7931E] to-[#833AB4] px-5 py-3">
         <div className="flex items-center justify-between text-white">
           <div className="flex items-center gap-2">
             <Calendar size={18} />
@@ -1858,7 +1858,7 @@ function InstaSchedTab() {
 
       {/* Se não tiver posts, mostra estado vazio */}
       {posts.length === 0 ? (
-        <div className="mt-8 rounded-lg border border-gray-200 bg-white py-16 text-center">
+        <div className="w-full mt-8 rounded-lg border border-gray-200 bg-white py-16 text-center">
           <Calendar size={48} className="mx-auto mb-3 text-gray-300" />
           <h4 className="mb-1 text-sm font-semibold text-gray-900">
             Nenhum agendamento encontrado
@@ -1988,9 +1988,9 @@ function WhatsAppTab() {
   const [freeTrialAtivo, setFreeTrialAtivo] = useState(false)
 
   return (
-    <div className="space-y-4">
+    <div className="w-full space-y-4">
       {/* Card Sessões WhatsApp */}
-      <div className="rounded-lg border border-gray-200 bg-white">
+      <div className="w-full rounded-lg border border-gray-200 bg-white">
         <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
           <h4 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900">
             <Link2 size={16} className="text-gray-600" />
@@ -2011,7 +2011,7 @@ function WhatsAppTab() {
       </div>
 
       {/* Card Sessão WhatsApp */}
-      <div className="rounded-lg border border-gray-200 bg-white">
+      <div className="w-full rounded-lg border border-gray-200 bg-white">
         <div className="border-b border-gray-200 px-4 py-3">
           <h4 className="text-sm font-semibold text-gray-900">
             Sessão WhatsApp
@@ -2106,7 +2106,7 @@ function InstaBotHelpTab() {
   return (
     <>
       {/* Sub-tabs Reels / Remix */}
-      <div className="flex border-b border-gray-200 bg-white">
+      <div className="w-full flex border-b border-gray-200 bg-white">
         <button
           onClick={() => setActiveSubTab('reels')}
           className={`flex-1 border-b-2 px-4 py-3 text-sm font-semibold transition ${
@@ -2132,7 +2132,7 @@ function InstaBotHelpTab() {
       </div>
 
       {/* Grid de Posts */}
-      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="w-full mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {posts.map((post) => (
           <div key={post.id} className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
             <img 
@@ -2371,7 +2371,7 @@ function AliExpressTab() {
     <>
       {/* Banner ATENÇÃO Afiliado */}
       {!afiliadoConfigurado && (
-        <div className="mt-4 rounded border border-[#F48FB1] bg-[#FCE4EC] px-4 py-3">
+        <div className="w-full mt-4 rounded border border-[#F48FB1] bg-[#FCE4EC] px-4 py-3">
           <p className="text-sm font-bold text-[#C2185B]">ATENÇÃO!</p>
           <p className="text-xs text-[#AD1457]">
             Você deve configurar suas informações de afiliado AliExpress para usar o recurso de categorias/palavra-chave!{' '}
@@ -2381,7 +2381,7 @@ function AliExpressTab() {
       )}
 
       {/* Card Importar Produtos em Massa */}
-      <div className="mt-4 rounded border border-gray-300 bg-white p-4">
+      <div className="w-full mt-4 rounded border border-gray-300 bg-white p-4">
         <h4 className="mb-1 text-sm font-semibold text-gray-900">Importar Produtos em Massa</h4>
         <p className="mb-3 text-xs text-gray-500">ARQUIVO DE PRODUTOS.XLS</p>
 
@@ -2416,7 +2416,7 @@ function AliExpressTab() {
       </div>
 
       {/* Categorias / Palavras-chave */}
-      <div className="mt-4 border-t border-gray-200 pt-4">
+      <div className="w-full mt-4 border-t border-gray-200 pt-4">
         <div className="mb-2 flex items-center gap-2">
           <label className="text-xs font-semibold text-gray-700">Categorias / Palavras-chave</label>
           <button className="rounded bg-[#E53935] px-3 py-1 text-xs font-bold text-white hover:bg-[#D32F2F]">
@@ -2438,7 +2438,7 @@ function AliExpressTab() {
       </div>
 
       {/* Filtros Produtos */}
-      <div className="mt-4 border-t border-gray-200 pt-4">
+      <div className="w-full mt-4 border-t border-gray-200 pt-4">
         <div className="mb-2 flex items-center gap-4">
           <label className="text-xs font-semibold text-gray-700">Produtos</label>
           <div className="flex items-center gap-2">
@@ -2518,7 +2518,7 @@ function AmazonTab() {
     <>
       {/* Banner ATENÇÃO Afiliado Amazon */}
       {!afiliadoConfigurado && (
-        <div className="mt-4 rounded border border-[#F48FB1] bg-[#FCE4EC] px-4 py-3">
+        <div className="w-full mt-4 rounded border border-[#F48FB1] bg-[#FCE4EC] px-4 py-3">
           <p className="text-sm font-bold text-[#C2185B]">ATENÇÃO!</p>
           <p className="text-xs text-[#AD1457]">
             Você deve configurar suas informações de afiliado AMAZON para usar esse recurso!{' '}
@@ -2528,7 +2528,7 @@ function AmazonTab() {
       )}
 
       {/* Categorias / Palavras-chave */}
-      <div className="mt-4 border-t border-gray-200 pt-4">
+      <div className="w-full mt-4 border-t border-gray-200 pt-4">
         <div className="mb-2 flex items-center gap-2">
           <label className="text-xs font-semibold text-gray-700">Categorias / Palavras-chave</label>
           <button className="rounded bg-[#E53935] px-3 py-1 text-xs font-bold text-white hover:bg-[#D32F2F]">
@@ -2550,7 +2550,7 @@ function AmazonTab() {
       </div>
 
       {/* Filtros Produtos */}
-      <div className="mt-4 border-t border-gray-200 pt-4">
+      <div className="w-full mt-4 border-t border-gray-200 pt-4">
         <div className="mb-2 flex items-center gap-4">
           <label className="text-xs font-semibold text-gray-700">Produtos</label>
           <div className="flex items-center gap-2">
@@ -2655,10 +2655,10 @@ function MercadoLivreTab() {
   return (
     <>
       {/* Grid 3 Colunas */}
-      <div className="mt-4 grid gap-4 lg:grid-cols-3">
+      <div className="w-full mt-4 grid gap-4 lg:grid-cols-3">
         
         {/* COLUNA 1: Adicionar Produto por Link + Cupons */}
-        <div className="space-y-4">
+        <div className="w-full space-y-4">
           <div className="rounded border border-gray-300 bg-white p-4">
             <h4 className="mb-3 text-sm font-semibold text-gray-900">
               Adicionar Produto por Link
@@ -2728,7 +2728,7 @@ function MercadoLivreTab() {
           </div>
 
           {/* Card Cupons */}
-          <div className="rounded border border-[#4FC3F7] bg-white">
+          <div className="w-full rounded border border-[#4FC3F7] bg-white">
             <div className="bg-[#4FC3F7] px-4 py-2">
               <h4 className="text-sm font-semibold text-white">Cupons</h4>
             </div>
@@ -2818,7 +2818,7 @@ function MercadoLivreTab() {
         </div>
 
         {/* COLUNA 2: Buscar por Categoria */}
-        <div className="rounded border border-gray-300 bg-white p-4">
+        <div className="w-full rounded border border-gray-300 bg-white p-4">
           <h4 className="mb-3 text-sm font-semibold text-gray-900">
             Buscar por Categoria Ofertas do Dia
           </h4>
@@ -2879,7 +2879,7 @@ function MercadoLivreTab() {
         </div>
 
         {/* COLUNA 3: Texto Padrão */}
-        <div className="rounded border border-gray-300 bg-white p-4">
+        <div className="w-full rounded border border-gray-300 bg-white p-4">
           <h4 className="mb-3 text-sm font-semibold text-gray-900">Texto Padrão</h4>
 
           <div className="space-y-4">
@@ -2921,7 +2921,7 @@ function MercadoLivreTab() {
       </div>
 
       {/* Categorias / Palavras-chave */}
-      <div className="mt-4 border-t border-gray-200 pt-4">
+      <div className="w-full mt-4 border-t border-gray-200 pt-4">
         <div className="mb-2 flex items-center gap-2">
           <label className="text-xs font-semibold text-gray-700">Categorias / Palavras-chave</label>
           <button className="rounded bg-[#E53935] px-3 py-1 text-xs font-bold text-white hover:bg-[#D32F2F]">
@@ -2943,7 +2943,7 @@ function MercadoLivreTab() {
       </div>
 
       {/* Filtros Produtos */}
-      <div className="mt-4 border-t border-gray-200 pt-4">
+      <div className="w-full mt-4 border-t border-gray-200 pt-4">
         <div className="mb-2 flex items-center gap-4">
           <label className="text-xs font-semibold text-gray-700">Produtos</label>
           <div className="flex items-center gap-2">
@@ -3025,10 +3025,10 @@ function SheinTab() {
   return (
     <>
       {/* Grid 3 Colunas */}
-      <div className="mt-4 grid gap-4 lg:grid-cols-3">
+      <div className="w-full mt-4 grid gap-4 lg:grid-cols-3">
         
         {/* COLUNA 1: Adicionar Produto por Link de Afiliado */}
-        <div className="rounded border border-gray-300 bg-white p-4">
+        <div className="w-full rounded border border-gray-300 bg-white p-4">
           <div className="mb-3 flex items-center gap-1.5">
             <LinkIcon size={16} className="text-gray-600" />
             <h4 className="text-sm font-semibold text-gray-900">
@@ -3076,7 +3076,7 @@ function SheinTab() {
         </div>
 
         {/* COLUNA 2: Texto Padrão */}
-        <div className="rounded border border-gray-300 bg-white p-4">
+        <div className="w-full rounded border border-gray-300 bg-white p-4">
           <div className="mb-3 flex items-center gap-1.5">
             <Info size={16} className="text-gray-600" />
             <h4 className="text-sm font-semibold text-gray-900">
@@ -3125,7 +3125,7 @@ function SheinTab() {
         </div>
 
         {/* COLUNA 3: Sobre a Integração Shein */}
-        <div className="rounded border border-gray-300 bg-white p-4">
+        <div className="w-full rounded border border-gray-300 bg-white p-4">
           <div className="mb-3 flex items-center gap-1.5">
             <Info size={16} className="text-gray-600" />
             <h4 className="text-sm font-semibold text-gray-900">
@@ -3156,7 +3156,7 @@ function SheinTab() {
       </div>
 
       {/* Filtros */}
-      <div className="mt-4 border-t border-gray-200 pt-4">
+      <div className="w-full mt-4 border-t border-gray-200 pt-4">
         <div className="flex gap-2">
           <input
             type="text"
@@ -3172,7 +3172,7 @@ function SheinTab() {
       </div>
 
       {/* Filtros Produtos */}
-      <div className="mt-4 border-t border-gray-200 pt-4">
+      <div className="w-full mt-4 border-t border-gray-200 pt-4">
         <div className="mb-2 flex items-center gap-4">
           <label className="text-xs font-semibold text-gray-700">Produtos</label>
           <div className="flex items-center gap-2">
@@ -3257,7 +3257,7 @@ function ColaboradoresTab() {
   return (
     <>
     {/* Formulário Convidar Colaborador */}
-      <div className="mt-4 rounded-lg border border-gray-200 bg-white p-4">
+      <div className="w-full mt-4 rounded-lg border border-gray-200 bg-white p-4">
         <h4 className="mb-3 text-sm font-semibold text-gray-900">Convidar Colaborador</h4>
         
         <div className="mb-4 rounded border border-[#4FC3F7] bg-[#E1F5FE] px-4 py-3">
@@ -3266,7 +3266,7 @@ function ColaboradoresTab() {
           </p>
         </div>
 
-        <div className="space-y-4">
+        <div className="w-full space-y-4">
           <div>
             <label className="mb-1 block text-xs font-semibold uppercase text-gray-600">
               E-MAIL DO COLABORADOR
