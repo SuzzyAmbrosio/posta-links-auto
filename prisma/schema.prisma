@@ -5,7 +5,7 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  directUrl = env("DIRECT_URL") // adiciona essa linha
 }
 
 model User {
@@ -24,6 +24,7 @@ model User {
   telegramPosts    TelegramPost[]
   telegramChannels TelegramChannel[]
   whatsappGroups   WhatsappGroup[]
+  channelConfigs   ChannelConfig[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -226,4 +227,52 @@ model PostLog {
 
   @@index([userId])
   @@index([createdAt])
+}
+
+model ChannelConfig {
+  id          String @id @default(cuid())
+  userId      String
+  channelId   String @unique
+  channelType String
+
+  isActive   Boolean @default(true)
+  postInLoop Boolean @default(false)
+  interval   Int?
+  random     Boolean @default(false)
+  horaInicio String?
+  horaFim    String?
+  idioma     String?
+  moeda      String?
+  pais       String?
+
+  productLink     String?
+  keepLinkInPost  Boolean @default(true)
+  header          String?
+  footer          String?
+  shopeeVideoLink String?
+  useShopeeVideo  Boolean @default(false)
+  precoOriginal   String?
+  precoAtual      String?
+  sufixoPreco     String?
+  precoParcelado  String?
+  descricao       String?
+  agendamento     String?
+
+  corTitulo          String?
+  corPreco           String?
+  ativarFeedTelegram Boolean @default(false)
+
+  tipoCupom     String?
+  valorDesconto String?
+  valorMinimo   String?
+  valorMaximo   String?
+  codigoCupom   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, channelId])
+  @@map("channel_configs")
 }

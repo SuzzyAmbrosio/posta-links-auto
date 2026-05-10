@@ -3,9 +3,28 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 
-export async function GET() {
+export async function GET(req: Request) { // ADICIONA req: Request
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+  const { searchParams } = new URL(req.url)
+  const type = searchParams.get('type')
+
+  if (type === 'telegram') {
+    const data = await prisma.telegramChannel.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: 'desc' }
+    })
+    return NextResponse.json(data)
+  }
+
+  if (type === 'whatsapp') {
+    const data = await prisma.whatsappGroup.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: 'desc' }
+    })
+    return NextResponse.json(data)
+  }
 
   const [telegram, whatsapp] = await Promise.all([
     prisma.telegramChannel.findMany({
